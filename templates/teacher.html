@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Faculty Portal - SLTIET UMS</title>
+    <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='images/logo.jpg') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='student_style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#22245b">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="app-header">
+            <div class="header-title">
+                <h2>Faculty Dashboard</h2>
+                <p>Academic Management</p>
+            </div>
+            <div class="header-actions">
+                <!-- Bell icon for leave notifications -->
+                <div class="icon-btn" onclick="openFacultyNotifications()" style="position: relative;"
+                    title="Leave Notifications">
+                    <i class="fa-solid fa-bell"></i>
+                    <span id="leaveNotifBadge"
+                        style="display: none; position: absolute; top: -5px; right: -5px; min-width: 18px; height: 18px; background: #ef4444; border-radius: 50%; border: 2px solid white; color: white; font-size: 0.65rem; font-weight: 700; display: none; align-items: center; justify-content: center; padding: 0 3px;"></span>
+                </div>
+                <div class="icon-btn" onclick="window.location.href='/profile'">
+                    <i class="fa-solid fa-user-gear"></i>
+                </div>
+                <div class="icon-btn logout" onclick="handleLogout()">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Session Check
+            if (localStorage.getItem('userRole') !== 'teacher') {
+                window.location.href = '/login';
+            }
+
+            function handleLogout() {
+                localStorage.clear();
+                window.location.href = '/logout';
+            }
+        </script>
+
+        <div class="grid">
+
+            <!-- Row 1 -->
+            <div class="card" onclick="window.location.href='/teacher/attendance'">
+                <i class="fa-solid fa-user-check icon"></i>
+                <p>Attendance Entry</p>
+            </div>
+
+            <div class="card" onclick="openUploadModal('timetable')">
+                <i class="fa-solid fa-calendar-check icon"></i>
+                <p>Time Table</p>
+            </div>
+
+            <div class="card" onclick="window.location.href='/F_mid_exam'">
+                <i class="fa-solid fa-file-pen icon"></i>
+                <p>Mid-Exam Entry</p>
+            </div>
+
+            <div class="card" onclick="window.location.href='/student_management'">
+                <i class="fa-solid fa-users-gear icon"></i>
+                <p>Faculty Personal</p>
+            </div>
+
+            <!-- Faculty Profile -->
+            <div class="card" onclick="window.location.href='/faculty_profile'">
+                <i class="fa-solid fa-chalkboard-user icon"></i>
+                <p>Faculty Profile</p>
+            </div>
+
+            <!-- Row 2 -->
+            <div class="card" onclick="window.location.href='/leave_approvals'">
+                <i class="fa-regular fa-address-card icon"></i>
+                <p>Leave Approvals</p>
+                <span id="pendingCount"
+                    style="display: none; background: #ef4444; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; position: absolute; top: 15px; right: 15px; font-weight: 700; border: 2px solid white;"></span>
+            </div>
+
+            <div class="card" onclick="openUploadModal('calendar')">
+                <i class="fa-duotone fa-regular fa-calendar-days icon"></i>
+                <p>Academic Calendar</p>
+            </div>
+
+            <div class="card" onclick="openUploadModal('syllabus')">
+                <i class="fa-solid fa-book icon"></i>
+                <p>Syllabus Management</p>
+            </div>
+
+            <div class="card" style="position:relative;" onclick="openFeeReceiptModal()">
+                <i class="fa-solid fa-file-invoice-dollar icon"></i>
+                <p>Fee Receipt Upload</p>
+                <!-- Green badge: receipts exist -->
+                <span id="feeUploadBadge"
+                    style="display:none; background:#22c55e; color:white; border-radius:50%; width:20px; height:20px; font-size:0.7rem; align-items:center; justify-content:center; position:absolute; top:15px; right:15px; font-weight:700; border:2px solid white;">✓</span>
+                <!-- Red badge: students requesting receipts -->
+                <span id="studentRequestBadge"
+                    style="display:none; background:#ef4444; color:white; border-radius:50%; min-width:22px; height:22px; font-size:0.72rem; align-items:center; justify-content:center; position:absolute; top:12px; right:12px; font-weight:700; border:2px solid white; padding:0 4px;"
+                    title="Students waiting for receipt"></span>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Faculty Leave Notifications Modal -->
+    <div id="facultyNotifModal" class="modal">
+        <div class="modal-content" style="position:relative;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-bell" style="color: var(--accent); margin-right: 10px;"></i>Leave
+                    Notifications</h3>
+                <button class="close-modal" onclick="closeFacultyNotifModal()">&times;</button>
+            </div>
+            <div id="facultyNotifList" style="max-height: 420px; overflow-y: auto; padding: 10px 0; padding-right:5px;">
+                <!-- Populated by JS -->
+            </div>
+            <button id="notifScrollTopBtn" onclick="document.getElementById('facultyNotifList').scrollTo({top:0, behavior:'smooth'})" 
+                style="display:none; position:absolute; bottom:80px; right:30px; background:var(--primary); color:white; border:none; border-radius:50%; width:36px; height:36px; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.2); justify-content:center; align-items:center; z-index:99;">
+                <i class="fa-solid fa-arrow-up"></i>
+            </button>
+            <div style="margin-top: 16px; display: flex; gap: 10px;">
+                <button onclick="markAllFacultyNotifsRead()"
+                    style="flex:1; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 14px; font-weight: 700; cursor: pointer; font-family: inherit;">
+                    <i class="fa-solid fa-check-double"></i> Mark All Read
+                </button>
+                <button onclick="window.location.href='/leave_approvals'"
+                    style="flex:1; background: linear-gradient(135deg,#10b981,#059669); color: white; border: none; padding: 12px; border-radius: 14px; font-weight: 700; cursor: pointer; font-family: inherit;">
+                    <i class="fa-solid fa-file-lines"></i> View All Requests
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Modal -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Upload PDF</h3>
+                <button class="close-modal" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="uploadForm">
+                <input type="hidden" id="uploadCategory" name="category">
+
+                <div id="semesterSelect" class="form-group" style="display: none;">
+                    <div style="margin-bottom: 12px;">
+                        <label>Select Branch</label>
+                        <select id="branch" name="branch" class="form-control">
+                            <option value="CIVIL">CIVIL</option>
+                            <option value="CSE" selected>CSE</option>
+                            <option value="ME">ME</option>
+                            <option value="EC">EC</option>
+                            <option value="BCA">BCA</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Select Semester</label>
+                        <select id="semester" name="semester" class="form-control">
+                            <option value="sem1">Semester 1</option>
+                            <option value="sem2">Semester 2</option>
+                            <option value="sem3">Semester 3</option>
+                            <option value="sem4">Semester 4</option>
+                            <option value="sem5">Semester 5</option>
+                            <option value="sem6">Semester 6</option>
+                            <option value="sem7">Semester 7</option>
+                            <option value="sem8">Semester 8</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                    <i class="fa-solid fa-file-pdf"></i>
+                    <p id="fileNameDisplay">Click to select PDF or drag and drop</p>
+                    <input type="file" id="fileInput" name="file" accept=".pdf" style="display: none;"
+                        onchange="handleFileSelect(this)">
+                </div>
+
+                <button type="submit" class="btn-premium">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Upload Now
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Fee Receipt Upload Modal -->
+    <div id="feeReceiptModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Upload Fee Receipt</h3>
+                <button class="close-modal" onclick="closeFeeReceiptModal()">&times;</button>
+            </div>
+            <form id="feeReceiptForm">
+                <div class="form-group">
+                    <label>Select Branch</label>
+                    <select id="feeReceiptBranch" name="branch" class="form-control">
+                        <option value="CIVIL">CIVIL</option>
+                        <option value="CSE" selected>CSE</option>
+                        <option value="ME">ME</option>
+                        <option value="EC">EC</option>
+                        <option value="BCA">BCA</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Select Semester</label>
+                    <select id="feeReceiptSemester" name="semester" class="form-control">
+                        <option value="sem1">Semester 1</option>
+                        <option value="sem2">Semester 2</option>
+                        <option value="sem3">Semester 3</option>
+                        <option value="sem4">Semester 4</option>
+                        <option value="sem5">Semester 5</option>
+                        <option value="sem6" selected>Semester 6</option>
+                        <option value="sem7">Semester 7</option>
+                        <option value="sem8">Semester 8</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Receipt Label (optional)</label>
+                    <input type="text" id="feeReceiptLabel" name="label" class="form-control"
+                        placeholder="e.g. Tuition Fee Sem 6">
+                </div>
+                <div class="upload-area" onclick="document.getElementById('feeFileInput').click()">
+                    <i class="fa-solid fa-file-pdf"></i>
+                    <p id="feeFileNameDisplay">Click to select PDF receipt</p>
+                    <input type="file" id="feeFileInput" name="file" accept=".pdf" style="display:none;"
+                        onchange="handleFeeFileSelect(this)">
+                </div>
+                <button type="submit" class="btn-premium">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Upload Receipt
+                </button>
+            </form>
+            <!-- Uploaded Receipts List with Scroll Button -->
+            <div id="uploadedReceiptsList" style="max-height:300px; overflow-y:auto; margin-top:20px; position:relative; padding-right:5px;"></div>
+            <button id="modalScrollTopBtn" onclick="document.getElementById('uploadedReceiptsList').scrollTo({top:0, behavior:'smooth'})" 
+                style="display:none; position:absolute; bottom:80px; right:30px; background:var(--primary); color:white; border:none; border-radius:50%; width:36px; height:36px; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.2); justify-content:center; align-items:center; z-index:99;">
+                <i class="fa-solid fa-arrow-up"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('uploadModal');
+        const uploadForm = document.getElementById('uploadForm');
+        const semesterSelect = document.getElementById('semesterSelect');
+        const modalTitle = document.getElementById('modalTitle');
+        const categoryInput = document.getElementById('uploadCategory');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+
+        function openUploadModal(category) {
+            modal.style.display = 'block';
+            categoryInput.value = category;
+            fileNameDisplay.innerText = 'Click to select PDF or drag and drop';
+            uploadForm.reset();
+            semesterSelect.style.display = 'block';
+
+            if (category === 'timetable') {
+                modalTitle.innerText = 'Upload Time Table';
+            } else if (category === 'calendar') {
+                modalTitle.innerText = 'Upload Academic Calendar';
+            } else {
+                modalTitle.innerText = 'Upload Syllabus';
+            }
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        function handleFileSelect(input) {
+            if (input.files.length > 0) {
+                fileNameDisplay.innerText = input.files[0].name;
+                fileNameDisplay.style.color = 'var(--primary)';
+            }
+        }
+
+        uploadForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(uploadForm);
+
+            try {
+                const response = await fetch('/api/upload_academic', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    alert('Uploaded successfully!');
+                    closeModal();
+                } else {
+                    alert('Upload failed: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred during upload');
+            }
+        };
+
+        window.onclick = (event) => {
+            if (event.target == modal) closeModal();
+            if (event.target == feeReceiptModal) closeFeeReceiptModal();
+        };
+
+        // ====== Fee Receipt Upload ======
+        const feeReceiptModal = document.getElementById('feeReceiptModal');
+        const feeReceiptForm = document.getElementById('feeReceiptForm');
+        const feeFileNameDisplay = document.getElementById('feeFileNameDisplay');
+
+        function openFeeReceiptModal() {
+            feeReceiptModal.style.display = 'block';
+            feeReceiptForm.reset();
+            feeFileNameDisplay.innerText = 'Click to select PDF receipt';
+            loadUploadedReceipts();
+        }
+
+        function closeFeeReceiptModal() {
+            feeReceiptModal.style.display = 'none';
+        }
+
+        function handleFeeFileSelect(input) {
+            if (input.files.length > 0) {
+                feeFileNameDisplay.innerText = input.files[0].name;
+                feeFileNameDisplay.style.color = 'var(--primary)';
+            }
+        }
+
+        feeReceiptForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(feeReceiptForm);
+            const btn = feeReceiptForm.querySelector('button[type=submit]');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading...';
+            try {
+                const response = await fetch('/api/upload_fee_receipt', { method: 'POST', body: formData });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    showFeeSuccessNotification();
+                    feeReceiptForm.reset();
+                    feeFileNameDisplay.innerText = 'Click to select PDF receipt';
+                    loadUploadedReceipts();
+                } else {
+                    alert('Upload failed: ' + result.message);
+                }
+            } catch (err) {
+                alert('Error uploading receipt');
+            }
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Upload Receipt';
+        };
+
+        async function loadUploadedReceipts() {
+            const container = document.getElementById('uploadedReceiptsList');
+            try {
+                const res = await fetch('/api/fee_receipts');
+                const receipts = await res.json();
+
+                let html = '';
+
+                // ── Student Requests Section ─────────────────────────────
+                const reqRes = await fetch('/api/receipt_requests');
+                const reqs = await reqRes.json();
+                const unseenReqs = reqs.filter(r => !r.seen);
+                if (reqs.length > 0) {
+                    html += `<div style="background:linear-gradient(135deg,#fff7ed,#fef3c7);border:1px solid #fcd34d;border-radius:14px;padding:14px 18px;margin-bottom:18px;">
+                        <div style="font-weight:700;color:#92400e;font-size:0.9rem;margin-bottom:8px;">
+                             <i class="fa-solid fa-bell" style="color:#f59e0b;"></i>
+                             Students Waiting for Receipt (${unseenReqs.length} new)
+                        </div>
+                        ${reqs.slice(-10).reverse().map(r => `
+                            <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(0,0,0,0.05);font-size:0.82rem;">
+                                <span><i class="fa-solid fa-user-graduate" style="color:#22245b;"></i> Roll: <b>${r.roll}</b></span>
+                                <span style="color:#64748b;"><b>${r.branch || 'CSE'} ${r.semester.replace('sem', 'Sem ')}</b> — ${r.date} ${r.time}</span>
+                                ${!r.seen ? '<span style="background:#ef4444;color:white;font-size:0.65rem;padding:2px 7px;border-radius:20px;font-weight:700;">NEW</span>' : ''}
+                            </div>`).join('')}
+                        <button onclick="markRequestsSeen()" style="margin-top:10px;background:#22245b;color:white;border:none;border-radius:8px;padding:7px 14px;font-size:0.8rem;cursor:pointer;font-weight:600;"><i class="fa-solid fa-check"></i> Mark all seen</button>
+                    </div>`;
+                }
+
+                // ── Uploaded Receipts Section ────────────────────────────
+                if (receipts.length === 0) {
+                    html += '<p style="color:var(--text-muted);font-size:0.9rem;text-align:center;">No receipts uploaded yet.</p>';
+                } else {
+                    html += '<h4 style="color:var(--primary);margin-bottom:12px;"><i class="fa-solid fa-list"></i> Uploaded Receipts</h4>' +
+                        receipts.map((r, i) => `
+                            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:12px;background:rgba(34,36,91,0.05);margin-bottom:8px;">
+                                <div>
+                                    <div style="font-weight:600;color:var(--primary);font-size:0.95rem;"><i class="fa-solid fa-file-pdf" style="color:#ef4444;"></i> ${r.label}</div>
+                                    <div style="font-size:0.78rem;color:var(--text-muted);">${r.branch || 'CSE'} &bull; ${r.semester.replace('sem', 'Sem ')} &bull; ${r.uploaded_at}</div>
+                                </div>
+                                <div style="display:flex;gap:8px;">
+                                    <a href="${r.path}" target="_blank" style="background:var(--primary);color:white;padding:6px 12px;border-radius:8px;text-decoration:none;font-size:0.82rem;"><i class="fa-solid fa-eye"></i></a>
+                                    <button onclick="deleteFeeReceipt(${i})" style="background:#ef4444;color:white;border:none;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:0.82rem;"><i class="fa-solid fa-trash"></i></button>
+                                </div>
+                            </div>`).join('');
+                    document.getElementById('feeUploadBadge').style.display = 'flex';
+                }
+
+                container.innerHTML = html;
+
+                // Setup Scroll Button Visibility logic
+                const scrollBtn = document.getElementById('modalScrollTopBtn');
+                if (scrollBtn) {
+                    container.onscroll = () => {
+                        if (container.scrollTop > 60) {
+                            scrollBtn.style.display = 'flex';
+                        } else {
+                            scrollBtn.style.display = 'none';
+                        }
+                    };
+                    // Initial check
+                    setTimeout(() => {
+                        if (container.scrollHeight > container.clientHeight) {
+                            // container is scrollable, but we only show button when scrolled down.
+                        }
+                    }, 200);
+                }
+
+                // Update red badge count
+                const reqBadge = document.getElementById('studentRequestBadge');
+                if (unseenReqs.length > 0) {
+                    reqBadge.textContent = unseenReqs.length;
+                    reqBadge.style.display = 'flex';
+                } else {
+                    reqBadge.style.display = 'none';
+                }
+
+            } catch (e) {
+                container.innerHTML = '<p style="color:red;font-size:0.9rem;">Error loading data.</p>';
+            }
+        }
+
+        async function markRequestsSeen() {
+            await fetch('/api/mark_requests_seen', { method: 'POST' });
+            document.getElementById('studentRequestBadge').style.display = 'none';
+            loadUploadedReceipts();
+        }
+
+        async function deleteFeeReceipt(index) {
+            if (!confirm('Delete this receipt?')) return;
+            await fetch('/api/delete_fee_receipt', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ index }) });
+            loadUploadedReceipts();
+        }
+
+        function showFeeSuccessNotification() {
+            const notif = document.createElement('div');
+            notif.style.cssText = 'position:fixed;top:20px;right:20px;background:linear-gradient(135deg,#22c55e,#16a34a);color:white;padding:16px 24px;border-radius:16px;box-shadow:0 10px 30px rgba(34,197,94,0.4);z-index:9999;font-weight:600;font-size:1rem;display:flex;align-items:center;gap:10px;animation:slideUp 0.4s ease;';
+            notif.innerHTML = '<i class="fa-solid fa-circle-check"></i> Fee receipt uploaded! Students can now view it.';
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), 4000);
+        }
+
+        // Check on load: green badge for receipts, red badge for student requests
+        (async () => {
+            // Load profile from server to sync localStorage
+            const email = localStorage.getItem('teacherEmail') || '';
+            if (email) {
+                try {
+                    const res = await fetch(`/api/get_teacher_profile?email=${encodeURIComponent(email)}`);
+                    const data = await res.json();
+                    if (data && data.email) {
+                        localStorage.setItem('facultyProfile', JSON.stringify(data));
+                    }
+                } catch (e) {
+                    console.error('Failed to sync profile on dashboard load:', e);
+                }
+            }
+
+            try {
+                const res = await fetch('/api/fee_receipts');
+                const receipts = await res.json();
+                if (receipts.length > 0) document.getElementById('feeUploadBadge').style.display = 'flex';
+            } catch (e) { }
+            try {
+                const reqRes = await fetch('/api/receipt_requests');
+                const reqs = await reqRes.json();
+                const unseen = reqs.filter(r => !r.seen).length;
+                if (unseen > 0) {
+                    const b = document.getElementById('studentRequestBadge');
+                    b.textContent = unseen;
+                    b.style.display = 'flex';
+                }
+            } catch (e) { }
+        })();
+
+
+
+        // ── Faculty Bell Notification (leave submissions) ──────────────
+        async function fetchAndUpdateFacultyNotifs() {
+            try {
+                const email = localStorage.getItem('teacherEmail') || '';
+                if (!email) return;
+
+                const res = await fetch(`/api/notifications?user_id=${encodeURIComponent(email)}`);
+                const notifications = await res.json();
+                if (!Array.isArray(notifications)) return;
+
+                // Update leaveNotifBadge
+                const unread = notifications.filter(n => !n.read).length;
+                const badge = document.getElementById('leaveNotifBadge');
+                if (unread > 0) {
+                    badge.textContent = unread;
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+
+                // Also update pendingCount badge for leave approvals card
+                const leavesRes = await fetch(`/api/leaves?email=${encodeURIComponent(email)}`);
+                const leaves = await leavesRes.json();
+                const pendingCountVal = leaves.filter(l => (l.status || 'Pending') === 'Pending').length;
+                const pendingBadge = document.getElementById('pendingCount');
+                if (pendingCountVal > 0) {
+                    pendingBadge.innerText = pendingCountVal;
+                    pendingBadge.style.display = 'flex';
+                } else {
+                    pendingBadge.style.display = 'none';
+                }
+
+            } catch (err) {
+                console.error("Failed to fetch notifications:", err);
+            }
+        }
+
+        fetchAndUpdateFacultyNotifs();
+        setInterval(fetchAndUpdateFacultyNotifs, 5000);
+
+        async function openFacultyNotifications() {
+            const modal = document.getElementById('facultyNotifModal');
+            const list = document.getElementById('facultyNotifList');
+            const email = localStorage.getItem('teacherEmail') || '';
+
+            list.innerHTML = '<div style="text-align:center;padding:20px;"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</div>';
+            modal.style.display = 'block';
+
+            try {
+                const res = await fetch(`/api/notifications?user_id=${encodeURIComponent(email)}`);
+                const notifs = await res.json();
+
+                if (notifs.length === 0) {
+                    list.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:30px;">No notifications yet.</p>';
+                } else {
+                    // Sort descending by ID
+                    notifs.sort((a, b) => b.id - a.id);
+                    list.innerHTML = notifs.map((n, i) => `
+                        <div style="padding: 14px 6px; border-bottom: 1px solid #f1f5f9; background: ${n.read ? 'white' : 'rgba(247,148,30,0.06)'}; border-radius: 12px; margin-bottom: 6px; transition: background 0.3s;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
+                                <span style="font-weight: 700; color: var(--primary); font-size: 0.93rem;">
+                                    <i class="fa-solid fa-user-graduate" style="color:var(--accent);"></i> ${n.student_name || 'Student'}
+                                    ${!n.read ? '<span style="background:#ef4444;color:white;font-size:0.62rem;padding:2px 7px;border-radius:20px;font-weight:700;margin-left:6px;">NEW</span>' : ''}
+                                </span>
+                                <small style="color: var(--text-muted); font-size: 0.72rem; flex-shrink:0; margin-left:8px;">${n.created_at || ''}</small>
+                            </div>
+                            <p style="font-size: 0.85rem; color: #334155; margin: 0 0 6px;">${n.message || ''}</p>
+                            ${n.type === 'leave_request' ? `
+                            <button onclick="window.location.href='/leave_approvals'" style="background:var(--primary);color:white;border:none;padding:5px 12px;border-radius:8px;font-size:0.75rem;cursor:pointer;font-weight:600;font-family:inherit;">
+                                <i class="fa-solid fa-eye"></i> Review
+                            </button>` : ''}
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {
+                list.innerHTML = '<p style="text-align:center;color:red;padding:30px;">Failed to load notifications.</p>';
+            }
+
+            // Setup Scroll Button Visibility for notifications
+            const scrollBtn = document.getElementById('notifScrollTopBtn');
+            if (scrollBtn) {
+                list.onscroll = () => {
+                    if (list.scrollTop > 60) {
+                        scrollBtn.style.display = 'flex';
+                    } else {
+                        scrollBtn.style.display = 'none';
+                    }
+                };
+            }
+        }
+
+        function closeFacultyNotifModal() {
+            document.getElementById('facultyNotifModal').style.display = 'none';
+        }
+
+        async function markAllFacultyNotifsRead() {
+            const email = localStorage.getItem('teacherEmail') || '';
+            if (!email) return;
+            try {
+                await fetch('/api/notifications/read', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: email })
+                });
+                document.getElementById('leaveNotifBadge').style.display = 'none';
+                openFacultyNotifications(); // Re-render list
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // Close faculty notif modal on outside click
+        const _origOnClick = window.onclick;
+        window.onclick = (event) => {
+            if (event.target == document.getElementById('facultyNotifModal')) closeFacultyNotifModal();
+            if (_origOnClick) _origOnClick(event);
+        };
+    </script>
+
+    <!-- Scroll to Top Button -->
+    <button id="globalScrollToTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Go to top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+    <script>
+        window.addEventListener('scroll', () => {
+            const btn = document.getElementById('globalScrollToTopBtn');
+            if (btn) {
+                if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                    btn.style.display = 'flex';
+                } else {
+                    btn.style.display = 'none';
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

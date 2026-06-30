@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Manage Profile - SLTIET App</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='student_style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#22245b">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .profile-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); padding: 30px; border-radius: 24px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); text-align: center; border: 1px solid rgba(255,255,255,0.5); max-width: 500px; margin: auto; }
+    .avatar { width: 100px; height: 100px; border-radius: 50%; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto 20px; box-shadow: 0 8px 20px rgba(247, 148, 30, 0.3); }
+    .info-group { text-align: left; margin-bottom: 15px; }
+    .info-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; }
+    .info-input { width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid #e2e8f0; font-family: inherit; font-size: 1rem; box-sizing: border-box; background: #fff; }
+    .info-input:focus { outline: none; border-color: var(--accent); }
+    .btn-save { background: var(--primary); color: white; border: none; padding: 14px; width: 100%; border-radius: 12px; font-weight: 700; font-size: 1rem; margin-top: 15px; cursor: pointer; transition: 0.3s; box-shadow: 0 8px 15px rgba(34, 36, 91, 0.2); }
+    .btn-save:active { transform: scale(0.96); }
+    .back-btn { background: none; border: none; font-size: 1.5rem; color: var(--primary); cursor: pointer; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <button class="back-btn" onclick="window.history.back()"><i class="fa-solid fa-arrow-left"></i></button>
+
+  <div class="profile-card">
+     <div class="avatar"><i class="fa-solid fa-user"></i></div>
+     <h2 style="margin-bottom: 25px; color: var(--primary);">Account Settings</h2>
+
+     <div class="info-group">
+        <label>Full Name</label>
+        <input type="text" class="info-input" id="nameInput" value="" placeholder="Enter your name">
+     </div>
+     <div class="info-group">
+        <label>Email Address</label>
+        <input type="email" class="info-input" id="emailInput" value="" placeholder="Enter email">
+     </div>
+      <div class="info-group">
+         <label>Phone Number</label>
+         <input type="tel" class="info-input" id="phoneInput" value="+91 9876543210">
+      </div>
+      <div class="info-group">
+         <label>Department / Branch</label>
+         <select id="studentBranch" class="info-input">
+             <option value="">Select Department</option>
+             <option value="CIVIL">CIVIL</option>
+             <option value="CSE">CSE</option>
+             <option value="ME">ME</option>
+             <option value="EC">EC</option>
+             <option value="BCA">BCA</option>
+         </select>
+      </div>
+      <div class="info-group">
+         <label>Semester</label>
+         <select id="studentSem" class="info-input">
+             <option value="">Select Semester</option>
+             <option value="sem1">Semester 1</option>
+             <option value="sem2">Semester 2</option>
+             <option value="sem3">Semester 3</option>
+             <option value="sem4">Semester 4</option>
+             <option value="sem5">Semester 5</option>
+             <option value="sem6">Semester 6</option>
+             <option value="sem7">Semester 7</option>
+             <option value="sem8">Semester 8</option>
+         </select>
+      </div>
+      <div class="info-group" id="subject-list-section" style="display: none;">
+         <label style="margin-bottom: 8px;">Subjects for Selected Department & Semester</label>
+         <div id="student-subjects-container" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;">
+             <!-- Mapped subjects pills loaded dynamically -->
+         </div>
+      </div>
+      <div class="info-group">
+         <label>Reset Password</label>
+         <input type="password" class="info-input" placeholder="Enter new password">
+      </div>
+
+      <button class="btn-save" id="saveBtn">Save Changes</button>
+<script>
+  // Ensure API_BASE_URL is defined
+  if (typeof API_BASE_URL === 'undefined') {
+    var API_BASE_URL = window.location.origin;
+  }
+
+  // Populate fields from localStorage
+  document.addEventListener('DOMContentLoaded', () => {
+    const nameField = document.getElementById('nameInput');
+    const emailField = document.getElementById('emailInput');
+    const phoneField = document.getElementById('phoneInput');
+    const branchField = document.getElementById('studentBranch');
+    const semField = document.getElementById('studentSem');
+
+    nameField.value = localStorage.getItem('studentName') || '';
+    emailField.value = localStorage.getItem('studentEmail') || '';
+    phoneField.value = localStorage.getItem('studentPhone') || '';
+    branchField.value = localStorage.getItem('studentBranch') || '';
+    semField.value = localStorage.getItem('studentSem') || '';
+
+    loadMappedSubjects();
+  });
+
+  async function loadMappedSubjects() {
+    const branch = document.getElementById('studentBranch').value;
+    const sem = document.getElementById('studentSem').value;
+    const section = document.getElementById('subject-list-section');
+    const container = document.getElementById('student-subjects-container');
+
+    if (!branch || !sem) {
+      section.style.display = 'none';
+      container.innerHTML = '';
+      return;
+    }
+
+    section.style.display = 'block';
+    container.innerHTML = '<span style="font-size:0.85rem;color:#64748b;"><i class="fa-solid fa-spinner fa-spin"></i> Loading subjects...</span>';
+
+    try {
+      const res = await fetch(API_BASE_URL + `/api/get_subjects_by_dept_sem?dept=${encodeURIComponent(branch)}&semester=${encodeURIComponent(sem)}`);
+      const subjects = await res.json();
+
+      if (subjects.length === 0) {
+        container.innerHTML = '<span style="font-size:0.85rem;color:#eab308;font-weight:600;"><i class="fa-solid fa-circle-info"></i> No subjects mapped for this Department and Semester.</span>';
+      } else {
+        container.innerHTML = subjects.map(sub => `
+          <div style="background: rgba(34,36,91,0.07); border: 1.5px solid rgba(34,36,91,0.12); color: var(--primary); border-radius: 20px; padding: 6px 12px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-book" style="color:var(--accent); font-size:0.75rem;"></i>
+            <span>${sub}</span>
+          </div>
+        `).join('');
+      }
+    } catch (e) {
+      console.error(e);
+      container.innerHTML = '<span style="font-size:0.85rem;color:#ef4444;"><i class="fa-solid fa-triangle-exclamation"></i> Failed to load subjects.</span>';
+    }
+  }
+
+  document.getElementById('studentBranch').addEventListener('change', loadMappedSubjects);
+  document.getElementById('studentSem').addEventListener('change', loadMappedSubjects);
+
+  // Save updated details to backend and localStorage
+  document.getElementById('saveBtn').addEventListener('click', () => {
+    const roll = localStorage.getItem('studentRoll');
+    const name = document.getElementById('nameInput').value.trim();
+    const email = document.getElementById('emailInput').value.trim();
+    const phone = document.getElementById('phoneInput').value.trim();
+    const branch = document.getElementById('studentBranch').value;
+    const sem = document.getElementById('studentSem').value;
+    const passwordField = document.querySelector('input[placeholder="Enter new password"]');
+    const password = passwordField ? passwordField.value : '';
+
+    if (!roll || !name) {
+      alert('Roll or name missing');
+      return;
+    }
+
+    const studentClass = (branch && sem) ? `${branch} ${sem}` : '';
+
+    fetch(API_BASE_URL + '/api/update_student', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        roll,
+        name,
+        email,
+        phone,
+        class: studentClass,
+        password
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === 'success') {
+        localStorage.setItem('studentName', name);
+        localStorage.setItem('studentEmail', email);
+        localStorage.setItem('studentPhone', phone);
+        localStorage.setItem('studentBranch', branch);
+        localStorage.setItem('studentSem', sem);
+        localStorage.setItem('studentClass', studentClass);
+        alert('Profile Updated Successfully!');
+      } else {
+        alert('Error: ' + data.message);
+      }
+    })
+    .catch(err => alert('Request failed'));
+  });
+</script>
+  </div>
+</div>
+
+</body>
+</html>

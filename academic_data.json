@@ -1,0 +1,8 @@
+{
+    "timetable": {
+        "sem1": "/static/uploads/timetable_sem1_Degree_4th_12-01-26.pdf",
+        "sem4": "/static/uploads/timetable_sem4_BE_4th_MID_TT.pdf"
+    },
+    "calendar": "/static/uploads/calendar_sem1_Academic_Calendar_Even-2026.pdf",
+    "syllabus": "/static/uploads/syllabus_sem1_4th_sem_syllabus.pdf"
+}

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Faculty Dashboard - SLTIET App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- Design Assets -->
+    <link rel="stylesheet" href="static/student_style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        .page-container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 0 20px 40px;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 480px) {
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+        }
+
+        .info-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            border-radius: 14px;
+            background: rgba(34, 36, 91, 0.05);
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+        }
+    </style>
+
+    <script src="config.js"></script>
+</head>
+
+<body>
+
+    <div class="header-info">
+        <button class="back-link" onclick="history.back()">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <h2>Faculty Dashboard</h2>
+        <p>Your administration & personal panel</p>
+    </div>
+
+    <div class="page-container">
+        
+        <div class="info-pill">
+            <i class="fa-solid fa-id-card-clip" style="margin-right: 8px;"></i>
+            Faculty ID: SLT-FAC-2024
+        </div>
+
+        <div class="glass-card">
+            <h3 class="section-title">
+                <i class="fa-solid fa-paper-plane" style="color: var(--accent);"></i>
+                Faculty Leave Application
+            </h3>
+            
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 25px;">
+                Submit your leave requests for administrative approval.
+            </p>
+
+            <div class="form-group">
+                <label><i class="fa-solid fa-user-tie"></i> Full Name</label>
+                <input type="text" id="facultyName" class="form-control" placeholder="Enter your full name">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label><i class="fa-solid fa-calendar-day"></i> From Date</label>
+                    <input type="date" id="fromDate" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-calendar-check"></i> To Date</label>
+                    <input type="date" id="toDate" class="form-control">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fa-solid fa-tags"></i> Leave Category</label>
+                <select id="leaveType" class="form-control">
+                    <option value="" disabled selected>Select category...</option>
+                    <option>Casual Leave (CL)</option>
+                    <option>Medical Leave (ML)</option>
+                    <option>Duty Leave (DL)</option>
+                    <option>Extraordinary Leave</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fa-solid fa-pen-nib"></i> Reason for Leave</label>
+                <textarea id="reason" class="form-control" rows="4" placeholder="Briefly describe the reason for your application..."></textarea>
+            </div>
+
+            <button class="btn-premium" onclick="submitFacultyLeave()">
+                <i class="fa-solid fa-paper-plane"></i> Submit Application
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        function submitFacultyLeave() {
+            const name = document.getElementById("facultyName").value.trim();
+            const from = document.getElementById("fromDate").value;
+            const to = document.getElementById("toDate").value;
+            const type = document.getElementById("leaveType").value;
+            const reason = document.getElementById("reason").value.trim();
+
+            if (!name || !from || !to || !type || !reason) {
+                alert("Please complete all sections of the form.");
+                return;
+            }
+
+            // Simple visual feedback
+            const btn = document.querySelector('.btn-premium');
+            const original = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                alert("Faculty Leave Application Sent for Approval!");
+                btn.innerHTML = original;
+                btn.disabled = false;
+                
+                // Clear form
+                document.getElementById("facultyName").value = "";
+                document.getElementById("fromDate").value = "";
+                document.getElementById("toDate").value = "";
+                document.getElementById("leaveType").selectedIndex = 0;
+                document.getElementById("reason").value = "";
+                
+                history.back();
+            }, 1200);
+        }
+    </script>
+
+    <!-- Scroll to Top Button -->
+    <button id="globalScrollToTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Go to top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+    <script>
+        window.addEventListener('scroll', () => {
+            const btn = document.getElementById('globalScrollToTopBtn');
+            if (btn) {
+                if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                    btn.style.display = 'flex';
+                } else {
+                    btn.style.display = 'none';
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

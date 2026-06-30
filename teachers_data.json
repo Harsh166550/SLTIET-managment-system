@@ -1,0 +1,43 @@
+[
+    {
+        "email": "principal@sltiet.edu.in",
+        "password": "admin@123"
+    },
+    {
+        "email": "computer@sltiet.edu.in",
+        "password": "admin@123",
+        "name": "Dr. Priya Sharma",
+        "dept": "Computer Engineering",
+        "designation": "Assistant Professor",
+        "phone": "+91 98765 43210",
+        "qual": "Ph.D",
+        "subjects": [
+            {
+                "dept": "CSE",
+                "semester": "sem3",
+                "subject": "Data Structures"
+            },
+            {
+                "dept": "CSE",
+                "semester": "sem3",
+                "subject": "Design and Analysis of Algorithms"
+            }
+        ]
+    },
+    {
+        "email": "science@sltiet.edu.in",
+        "password": "admin@123"
+    },
+    {
+        "email": "mechanical@sltiet.edu.in",
+        "password": "admin@123"
+    },
+    {
+        "email": "civil@sltiet.edu.in",
+        "password": "admin@123"
+    },
+    {
+        "email": "electrical@sltiet.edu.in",
+        "password": "admin@123"
+    }
+]

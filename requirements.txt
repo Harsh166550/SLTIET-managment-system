@@ -1,0 +1,17 @@
+flask
+flask-bcrypt
+flask-login
+flask-sqlalchemy
+mysql-connector-python
+opencv-python
+numpy
+pandas
+pillow
+pywhatkit
+pyttsx3
+SpeechRecognition
+
+openpyxl
+flask-cors
+
+gunicorn

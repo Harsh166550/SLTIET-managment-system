@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#22245b">
+    <title>Faculty Profile - SLTIET UMS</title>
+    <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='images/logo.jpg') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='student_style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        /* ───────── PAGE-LEVEL RESET ───────── */
+        :root {
+            --primary: #22245b;
+            --accent: #f7941e;
+            --success: #10b981;
+            --danger: #ef4444;
+            --purple: #8b5cf6;
+            --surface: rgba(255, 255, 255, 0.75);
+            --shadow-sm: 0 4px 14px rgba(0, 0, 0, 0.05);
+            --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* ── Profile Hero ── */
+        .profile-hero {
+            background: linear-gradient(135deg, var(--primary) 0%, #3b3fac 60%, #5b21b6 100%);
+            border-radius: 28px;
+            padding: 36px 30px 28px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .profile-hero::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 240px;
+            height: 240px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 50%;
+        }
+
+        .profile-hero::after {
+            content: '';
+            position: absolute;
+            bottom: -80px;
+            left: -40px;
+            width: 280px;
+            height: 280px;
+            background: rgba(247, 148, 30, 0.12);
+            border-radius: 50%;
+        }
+
+        .hero-top {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .avatar-ring {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), #ff6b35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: white;
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.25), 0 8px 20px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .avatar-ring .edit-badge {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 26px;
+            height: 26px;
+            background: var(--accent);
+            border-radius: 50%;
+            border: 2px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            cursor: pointer;
+        }
+
+        .hero-info h2 {
+            font-size: 1.65rem;
+            font-weight: 800;
+            margin: 0 0 4px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-info .dept-tag {
+            font-size: 0.82rem;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(6px);
+            border-radius: 20px;
+            padding: 4px 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 24px;
+            margin-top: 22px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat .num {
+            font-size: 1.8rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .hero-stat .lbl {
+            font-size: 0.72rem;
+            opacity: 0.7;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .hero-divider {
+            width: 1px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            align-self: center;
+        }
+
+        /* ── Section Cards ── */
+        .section-card {
+            background: var(--surface);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 24px;
+            animation: slideUp 0.6s ease both;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 22px;
+        }
+
+        .section-title .tag {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            background: rgba(34, 36, 91, 0.07);
+            color: var(--primary);
+            padding: 3px 9px;
+            border-radius: 20px;
+        }
+
+        /* ── Profile Form ── */
+        .profile-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 600px) {
+            .profile-form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .fp-label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+            letter-spacing: 0.03em;
+        }
+
+        .fp-input {
+            width: 100%;
+            padding: 14px 18px;
+            border-radius: 14px;
+            border: 1.5px solid rgba(34, 36, 91, 0.1);
+            background: rgba(255, 255, 255, 0.9);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            color: var(--primary);
+            transition: all 0.3s;
+        }
+
+        .fp-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(247, 148, 30, 0.15);
+        }
+
+        .fp-input::placeholder {
+            color: #b0bec5;
+        }
+
+        /* ── Subject Chips ── */
+        .subject-chips-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .subject-chip {
+            background: rgba(34, 36, 91, 0.07);
+            border: 1.5px solid rgba(34, 36, 91, 0.12);
+            color: var(--primary);
+            border-radius: 20px;
+            padding: 7px 14px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .subject-chip .remove-chip {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            transition: all 0.2s;
+        }
+
+        .subject-chip .remove-chip:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .add-subject-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .add-subject-row input,
+        .add-subject-row select {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 14px;
+            border: 1.5px solid rgba(34, 36, 91, 0.1);
+            background: white;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            color: var(--primary);
+            transition: all 0.3s;
+        }
+
+        .add-subject-row input:focus,
+        .add-subject-row select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(247, 148, 30, 0.15);
+        }
+
+        .add-subject-row input::placeholder {
+            color: #b0bec5;
+        }
+
+        @media (max-width: 600px) {
+            .add-subject-row {
+                flex-direction: column;
+            }
+        }
+
+        .btn-add-subject {
+            padding: 12px 18px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 0.88rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.25s;
+            white-space: nowrap;
+        }
+
+        .btn-add-subject:hover {
+            background: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        /* ── Save Profile Button ── */
+        .btn-save-profile {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary), #3b3fac);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 20px rgba(34, 36, 91, 0.35);
+        }
+
+        .btn-save-profile:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 30px rgba(34, 36, 91, 0.45);
+        }
+
+        /* ── My Subjects Grid (Profile View) ── */
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .subject-card {
+            background: white;
+            border: 1.5px solid rgba(34, 36, 91, 0.07);
+            border-radius: 20px;
+            padding: 24px 18px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .subject-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent, rgba(247, 148, 30, 0.04));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .subject-card:hover::before {
+            opacity: 1;
+        }
+
+        .subject-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--accent);
+            box-shadow: 0 16px 35px -8px rgba(247, 148, 30, 0.25);
+        }
+
+        .subject-icon-wrap {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            margin: 0 auto 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        .subject-card .sub-name {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1.3;
+            margin-bottom: 8px;
+        }
+
+        .subject-card .sub-tag {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            opacity: 0.55;
+            color: var(--primary);
+        }
+
+        /* ── Slot Picker Modal ── */
+        .slot-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .slot-modal-overlay.show {
+            display: flex;
+        }
+
+        .slot-sheet {
+            background: white;
+            border-radius: 28px 28px 0 0;
+            padding: 28px 24px 40px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.2);
+            animation: sheetUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+        }
+
+        @keyframes sheetUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .sheet-handle {
+            width: 40px;
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 99px;
+            margin: 0 auto 22px;
+        }
+
+        .sheet-subject-name {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+
+        .sheet-subject-sub {
+            font-size: 0.82rem;
+            color: #64748b;
+            margin-bottom: 24px;
+        }
+
+        .slots-list {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 480px) {
+            .slots-list {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .slot-tile {
+            background: #f1f5f9;
+            border: 2.5px solid transparent;
+            border-radius: 16px;
+            padding: 14px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .slot-tile:hover {
+            background: rgba(247, 148, 30, 0.1);
+            border-color: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        .slot-tile .slot-num {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+        }
+
+        .slot-tile .slot-lbl {
+            font-size: 0.62rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .proxy-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 4px 0 14px;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .proxy-divider::before,
+        .proxy-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+        }
+
+        .btn-proxy-attend {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #5b21b6, var(--purple));
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.35);
+        }
+
+        .btn-proxy-attend:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 30px rgba(139, 92, 246, 0.45);
+        }
+
+        /* ── Proxy Auth Modal ── */
+        .proxy-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .proxy-overlay.show {
+            display: flex;
+        }
+
+        .proxy-box {
+            background: white;
+            border-radius: 28px;
+            padding: 36px 30px;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+            text-align: center;
+        }
+
+        .proxy-icon-wrap {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #5b21b6, var(--purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            color: white;
+            margin: 0 auto 20px;
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
+        }
+
+        .proxy-box h3 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+
+        .proxy-box p {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 26px;
+        }
+
+        .proxy-input-wrap {
+            position: relative;
+            margin-bottom: 14px;
+            text-align: left;
+        }
+
+        .proxy-input-wrap label {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .proxy-input-wrap input {
+            width: 100%;
+            padding: 14px 18px 14px 44px;
+            border-radius: 14px;
+            border: 1.5px solid rgba(34, 36, 91, 0.1);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            color: var(--primary);
+            transition: all 0.3s;
+        }
+
+        .proxy-input-wrap input:focus {
+            outline: none;
+            border-color: var(--purple);
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+        }
+
+        .proxy-input-wrap .input-icon {
+            position: absolute;
+            left: 14px;
+            bottom: 15px;
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+
+        .proxy-slot-picker {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .proxy-slot-picker label {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .proxy-slot-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .proxy-slot-btn {
+            background: #f1f5f9;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 10px 4px;
+            text-align: center;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: var(--primary);
+            transition: all 0.2s;
+        }
+
+        .proxy-slot-btn:hover,
+        .proxy-slot-btn.active {
+            background: rgba(139, 92, 246, 0.1);
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+
+        .proxy-btns {
+            display: flex;
+            gap: 10px;
+            margin-top: 6px;
+        }
+
+        .btn-cancel-proxy {
+            flex: 1;
+            padding: 14px;
+            background: #f1f5f9;
+            color: #475569;
+            border: none;
+            border-radius: 14px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel-proxy:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-verify-proxy {
+            flex: 2;
+            padding: 14px;
+            background: linear-gradient(135deg, #5b21b6, var(--purple));
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+            box-shadow: 0 6px 18px rgba(139, 92, 246, 0.35);
+        }
+
+        .btn-verify-proxy:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.45);
+        }
+
+        /* ── Edit Profile Button ── */
+        .btn-edit-profile {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1.5px solid rgba(255, 255, 255, 0.35);
+            border-radius: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: all 0.25s;
+            margin-top: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-edit-profile:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* ── Toast Notification ── */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--primary);
+            color: white;
+            padding: 14px 24px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 12px 30px rgba(34, 36, 91, 0.35);
+            z-index: 9999;
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.success {
+            background: linear-gradient(135deg, #059669, var(--success));
+        }
+
+        .toast.error {
+            background: linear-gradient(135deg, #dc2626, var(--danger));
+        }
+
+        .toast.info {
+            background: linear-gradient(135deg, var(--primary), #3b3fac);
+        }
+
+        /* ── Empty State ── */
+        .empty-subjects {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .empty-subjects i {
+            font-size: 3.5rem;
+            color: var(--accent);
+            opacity: 0.4;
+            margin-bottom: 14px;
+            display: block;
+        }
+
+        .empty-subjects p {
+            color: #94a3b8;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* ── Setup View vs Profile View ── */
+        #setup-view,
+        #profile-view {
+            display: none;
+        }
+
+        #setup-view.active,
+        #profile-view.active {
+            display: block;
+        }
+
+        /* ── Back Button ── */
+        .page-back-btn {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            color: var(--primary);
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.1rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s;
+            margin-bottom: 20px;
+            text-decoration: none;
+        }
+
+        .page-back-btn:hover {
+            transform: translateX(-4px);
+            box-shadow: var(--shadow);
+        }
+
+        /* colours for subject cards */
+        .color-0 {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            color: #1d4ed8;
+        }
+
+        .color-1 {
+            background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+            color: #be185d;
+        }
+
+        .color-2 {
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+            color: #15803d;
+        }
+
+        .color-3 {
+            background: linear-gradient(135deg, #fef9c3, #fde68a);
+            color: #854d0e;
+        }
+
+        .color-4 {
+            background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+            color: #6d28d9;
+        }
+
+        .color-5 {
+            background: linear-gradient(135deg, #ffedd5, #fed7aa);
+            color: #c2410c;
+        }
+
+        .color-6 {
+            background: linear-gradient(135deg, #cffafe, #a5f3fc);
+            color: #0e7490;
+        }
+
+        .color-7 {
+            background: linear-gradient(135deg, #fce7f3, #f9a8d4);
+            color: #9d174d;
+        }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1.5px solid rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .logout-btn:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* ── Proxy MUST badge ── */
+        .proxy-must-badge {
+            background: linear-gradient(135deg, #5b21b6, #7c3aed);
+            color: white;
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 3px 9px;
+            border-radius: 20px;
+            margin-left: 8px;
+        }
+
+        /* ── Department selector pills ── */
+        .dept-pill {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1.5px solid rgba(34, 36, 91, 0.12);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: white;
+            color: var(--primary);
+            transition: all 0.25s ease;
+            user-select: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dept-pill.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 10px rgba(34, 36, 91, 0.2);
+        }
+
+        .dept-pill:hover:not(.selected) {
+            background: rgba(34, 36, 91, 0.05);
+            border-color: rgba(34, 36, 91, 0.25);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- ── Back Nav ── -->
+        <a class="page-back-btn" onclick="window.location.href='/teacher'" title="Back to Dashboard">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+
+        <!-- ═══════════════════════════ SETUP VIEW ═══════════════════════════ -->
+        <div id="setup-view">
+            <div style="margin-bottom:28px;">
+                <h2 style="font-size:2rem;font-weight:800;color:var(--primary);letter-spacing:-0.02em;">Faculty Profile
+                    Setup</h2>
+                <p style="color:#64748b;margin-top:6px;font-size:0.95rem;">Fill in your details and add the subjects you
+                    teach.</p>
+            </div>
+
+            <!-- Personal Details -->
+            <div class="section-card">
+                <div class="section-title">
+                    <i class="fa-solid fa-id-card" style="color:var(--accent);"></i>
+                    Personal Details
+                    <span class="tag">Step 1</span>
+                </div>
+                <div class="profile-form-grid">
+                    <div>
+                        <label class="fp-label">Full Name *</label>
+                        <input class="fp-input" type="text" id="inp-name" placeholder="e.g. Dr. Priya Sharma">
+                    </div>
+                    <div>
+                        <label class="fp-label">Faculty ID / Email</label>
+                        <input class="fp-input" type="email" id="inp-email" placeholder="e.g. priya.ce@sltiet.edu.in">
+                    </div>
+                    <div>
+                        <label class="fp-label">Department</label>
+                        <input class="fp-input" type="text" id="inp-dept" placeholder="e.g. Computer Engineering">
+                    </div>
+                    <div>
+                        <label class="fp-label">Designation</label>
+                        <input class="fp-input" type="text" id="inp-designation" placeholder="e.g. Assistant Professor">
+                    </div>
+                    <div>
+                        <label class="fp-label">Phone Number</label>
+                        <input class="fp-input" type="tel" id="inp-phone" placeholder="e.g. +91 98765 43210">
+                    </div>
+                    <div>
+                        <label class="fp-label">Qualification</label>
+                        <input class="fp-input" type="text" id="inp-qual" placeholder="e.g. M.Tech, Ph.D">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subject Management -->
+            <div class="section-card">
+                <div class="section-title">
+                    <i class="fa-solid fa-book-open" style="color:var(--accent);"></i>
+                    Subjects You Teach
+                    <span class="tag">Step 2</span>
+                </div>
+
+                <div class="subject-chips-wrap" id="subject-chips">
+                    <!-- chips populated by JS -->
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <label class="fp-label" style="margin-bottom: 8px;">Select Department for Subject *</label>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px;" id="dept-selector">
+                        <span class="dept-pill" data-dept="CIVIL" onclick="toggleDeptPill(this)">CIVIL</span>
+                        <span class="dept-pill" data-dept="CSE" onclick="toggleDeptPill(this)">CSE</span>
+                        <span class="dept-pill" data-dept="ME" onclick="toggleDeptPill(this)">ME</span>
+                        <span class="dept-pill" data-dept="EC" onclick="toggleDeptPill(this)">EC</span>
+                        <span class="dept-pill" data-dept="BCA" onclick="toggleDeptPill(this)">BCA</span>
+                    </div>
+                </div>
+
+                <div class="add-subject-row">
+                    <input type="text" id="inp-subject" placeholder="Type subject name (e.g. Data Structures)"
+                        onkeydown="if(event.key==='Enter') addSubject()">
+                    <select id="inp-semester" class="fp-input"
+                        style="flex: 0.5; min-width: 140px; padding: 12px 16px; border-radius: 14px; border: 1.5px solid rgba(34,36,91,0.1); background: white; font-family: 'Outfit', sans-serif; font-size: 0.9rem; color: var(--primary); height: auto;">
+                        <option value="">Select Semester</option>
+                        <option value="sem1">Semester 1</option>
+                        <option value="sem2">Semester 2</option>
+                        <option value="sem3">Semester 3</option>
+                        <option value="sem4">Semester 4</option>
+                        <option value="sem5">Semester 5</option>
+                        <option value="sem6">Semester 6</option>
+                        <option value="sem7">Semester 7</option>
+                        <option value="sem8">Semester 8</option>
+                    </select>
+                    <button class="btn-add-subject" onclick="addSubject()">
+                        <i class="fa-solid fa-plus"></i> Add Subject
+                    </button>
+                </div>
+            </div>
+
+            <!-- Save -->
+            <button class="btn-save-profile" onclick="saveProfile()">
+                <i class="fa-solid fa-floppy-disk"></i> Save My Profile
+            </button>
+        </div>
+        <!-- END SETUP VIEW -->
+
+
+        <!-- ═══════════════════════════ PROFILE VIEW ═══════════════════════════ -->
+        <div id="profile-view">
+
+            <!-- Hero -->
+            <div class="profile-hero">
+                <div class="hero-top">
+                    <div class="avatar-ring" id="hero-avatar">PR</div>
+                    <div class="hero-info">
+                        <h2 id="hero-name">Faculty Name</h2>
+                        <div class="dept-tag">
+                            <i class="fa-solid fa-building-columns"></i>
+                            <span id="hero-dept">Department</span>
+                        </div>
+                        <div style="font-size:0.8rem;opacity:0.65;margin-top:6px;" id="hero-designation">Designation
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <div class="num" id="hero-subjects-count">0</div>
+                        <div class="lbl">Subjects</div>
+                    </div>
+                    <div class="hero-divider"></div>
+                    <div class="hero-stat">
+                        <div class="num" id="hero-email-short">—</div>
+                        <div class="lbl">Email</div>
+                    </div>
+                    <div class="hero-divider"></div>
+                    <div class="hero-stat">
+                        <div class="num" id="hero-phone-short">—</div>
+                        <div class="lbl">Phone</div>
+                    </div>
+                </div>
+
+                <button class="btn-edit-profile" onclick="switchToSetup()">
+                    <i class="fa-solid fa-pen-to-square"></i> Edit Profile
+                </button>
+            </div>
+
+            <!-- Subjects Section -->
+            <div class="section-card">
+                <div class="section-title">
+                    <i class="fa-solid fa-book-open-reader" style="color:var(--accent);"></i>
+                    My Subjects
+                    <span class="tag">Click a Subject to Take Attendance</span>
+                </div>
+
+                <div class="subjects-grid" id="subjects-grid">
+                    <!-- populated by JS -->
+                </div>
+
+                <div class="empty-subjects" id="empty-subjects" style="display:none;">
+                    <i class="fa-solid fa-book-open"></i>
+                    <p>No subjects added yet.<br>Edit your profile to add subjects.</p>
+                </div>
+            </div>
+
+        </div>
+        <!-- END PROFILE VIEW -->
+
+    </div><!-- /container -->
+
+
+    <!-- ═══════════════ SLOT PICKER BOTTOM SHEET ═══════════════ -->
+    <div class="slot-modal-overlay" id="slot-overlay" onclick="closeSlotSheet(event)">
+        <div class="slot-sheet">
+            <div class="sheet-handle"></div>
+            <div class="sheet-subject-name" id="sheet-subject-name">Subject</div>
+            <div class="sheet-subject-sub">Select a lecture slot to mark attendance</div>
+
+            <div class="slots-list">
+                <div class="slot-tile" onclick="goToSlot(1)">
+                    <div class="slot-num">1</div>
+                    <div class="slot-lbl">Slot</div>
+                </div>
+                <div class="slot-tile" onclick="goToSlot(2)">
+                    <div class="slot-num">2</div>
+                    <div class="slot-lbl">Slot</div>
+                </div>
+                <div class="slot-tile" onclick="goToSlot(3)">
+                    <div class="slot-num">3</div>
+                    <div class="slot-lbl">Slot</div>
+                </div>
+                <div class="slot-tile" onclick="goToSlot(4)">
+                    <div class="slot-num">4</div>
+                    <div class="slot-lbl">Slot</div>
+                </div>
+                <div class="slot-tile" onclick="goToSlot(5)">
+                    <div class="slot-num">5</div>
+                    <div class="slot-lbl">Slot</div>
+                </div>
+            </div>
+
+            <div class="proxy-divider">OR</div>
+
+            <button class="btn-proxy-attend" onclick="openProxyModal()">
+                <i class="fa-solid fa-user-shield"></i>
+                Proxy Attendance
+                <span class="proxy-must-badge">Proxy</span>
+            </button>
+        </div>
+    </div>
+
+
+    <!-- ═══════════════ PROXY AUTH MODAL ═══════════════ -->
+    <div class="proxy-overlay" id="proxy-overlay" onclick="closeProxyOutside(event)">
+        <div class="proxy-box" onclick="event.stopPropagation()">
+            <div class="proxy-icon-wrap">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <h3>Proxy Authorization</h3>
+            <p>This is a Proxy attendance session. Please verify using the actual faculty's email and password.</p>
+
+            <div class="proxy-input-wrap">
+                <label>Faculty Email ID (Proxy)</label>
+                <i class="input-icon fa-solid fa-envelope"></i>
+                <input type="email" id="proxy-email" placeholder="teacher@sltiet.edu.in">
+            </div>
+
+            <div class="proxy-input-wrap">
+                <label>Password</label>
+                <i class="input-icon fa-solid fa-lock"></i>
+                <input type="password" id="proxy-pass" placeholder="••••••••">
+            </div>
+
+            <!-- Slot selection inside proxy -->
+            <div class="proxy-slot-picker">
+                <label>Select Slot for Proxy Attendance</label>
+                <div class="proxy-slot-grid">
+                    <button class="proxy-slot-btn" data-slot="1" onclick="selectProxySlot(this)">Slot 1</button>
+                    <button class="proxy-slot-btn" data-slot="2" onclick="selectProxySlot(this)">Slot 2</button>
+                    <button class="proxy-slot-btn" data-slot="3" onclick="selectProxySlot(this)">Slot 3</button>
+                    <button class="proxy-slot-btn" data-slot="4" onclick="selectProxySlot(this)">Slot 4</button>
+                    <button class="proxy-slot-btn" data-slot="5" onclick="selectProxySlot(this)">Slot 5</button>
+                </div>
+            </div>
+
+            <div class="proxy-btns">
+                <button class="btn-cancel-proxy" onclick="closeProxyModal()">Cancel</button>
+                <button class="btn-verify-proxy" onclick="verifyProxy()">
+                    <i class="fa-solid fa-shield-check"></i> Verify & Continue
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+
+    <script>
+        // ─────────────── Session Guard ───────────────
+        if (localStorage.getItem('userRole') !== 'teacher') {
+            window.location.href = '/login';
+        }
+
+        // ─────────────── State ───────────────
+        const STORAGE_KEY = 'facultyProfile';
+        let profile = null;
+        let currentSubject = '';
+        let currentDept = '';
+        let currentSem = '';
+        let selectedProxySlot = null;
+
+        const SUBJECT_ICONS = [
+            'fa-laptop-code', 'fa-microchip', 'fa-calculator', 'fa-flask',
+            'fa-diagram-project', 'fa-database', 'fa-network-wired', 'fa-wave-square',
+            'fa-brain', 'fa-atom', 'fa-code-branch', 'fa-cube'
+        ];
+
+        // ─────────────── Init ───────────────
+        async function init() {
+            const email = localStorage.getItem('teacherEmail') || '';
+            if (email) {
+                try {
+                    const res = await fetch(`/api/get_teacher_profile?email=${encodeURIComponent(email)}`);
+                    const data = await res.json();
+                    if (data && data.email) {
+                        profile = data;
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+                        showProfileView();
+                        return;
+                    }
+                } catch (e) {
+                    console.error('Failed to load profile from server, using local fallback:', e);
+                }
+            }
+
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                profile = JSON.parse(saved);
+                showProfileView();
+            } else {
+                showSetupView();
+            }
+        }
+
+        function showSetupView() {
+            document.getElementById('setup-view').classList.add('active');
+            document.getElementById('profile-view').classList.remove('active');
+            if (profile) loadFormFromProfile();
+            renderChips();
+        }
+
+        function showProfileView() {
+            document.getElementById('profile-view').classList.add('active');
+            document.getElementById('setup-view').classList.remove('active');
+            renderProfileHero();
+            renderSubjectsGrid();
+        }
+
+        function switchToSetup() {
+            showSetupView();
+        }
+
+        // ─────────────── Profile Form ───────────────
+        function loadFormFromProfile() {
+            if (!profile) return;
+            document.getElementById('inp-name').value = profile.name || '';
+            document.getElementById('inp-email').value = profile.email || '';
+            document.getElementById('inp-dept').value = profile.dept || '';
+            document.getElementById('inp-designation').value = profile.designation || '';
+            document.getElementById('inp-phone').value = profile.phone || '';
+            document.getElementById('inp-qual').value = profile.qual || '';
+        }
+
+        async function saveProfile() {
+            const name = document.getElementById('inp-name').value.trim();
+            if (!name) { showToast('Please enter your full name.', 'error'); return; }
+
+            const subjects = getChipSubjects();
+            const email = document.getElementById('inp-email').value.trim() || localStorage.getItem('teacherEmail') || '';
+
+            profile = {
+                name,
+                email: email,
+                dept: document.getElementById('inp-dept').value.trim(),
+                designation: document.getElementById('inp-designation').value.trim(),
+                phone: document.getElementById('inp-phone').value.trim(),
+                qual: document.getElementById('inp-qual').value.trim(),
+                subjects
+            };
+
+            // Save to server
+            try {
+                const res = await fetch('/api/save_teacher_profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(profile)
+                });
+                const result = await res.json();
+                if (result.status !== 'success') throw new Error(result.message);
+            } catch (e) {
+                console.error('Failed to sync profile with server:', e);
+            }
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+            showToast('Profile saved successfully! 🎉', 'success');
+            setTimeout(() => showProfileView(), 800);
+        }
+
+        // ─────────────── Subject Chips (Setup) ───────────────
+        let chips = [];
+
+        function toggleDeptPill(pill) {
+            document.querySelectorAll('#dept-selector .dept-pill').forEach(p => p.classList.remove('selected'));
+            pill.classList.add('selected');
+        }
+
+        function getChipSubjects() { return [...chips]; }
+
+        function renderChips() {
+            const wrap = document.getElementById('subject-chips');
+            if (chips.length === 0) {
+                wrap.innerHTML = '<span style="font-size:0.82rem;color:#94a3b8;font-weight:500;">No subjects added yet.</span>';
+                return;
+            }
+            wrap.innerHTML = chips.map((s, i) => {
+                const name = s.subject || s.name || '';
+                const dept = s.dept || (s.depts ? s.depts.join(', ') : '');
+                const sem = s.semester ? s.semester.replace('sem', 'Sem ') : '';
+                return `
+                    <div class="subject-chip">
+                        <i class="fa-solid fa-book" style="color:var(--accent);font-size:0.75rem;"></i>
+                        <span><strong>${name}</strong> <span style="opacity:0.85;font-size:0.75rem;margin-left:4px;background:rgba(34,36,91,0.1);padding:2px 6px;border-radius:10px;">${dept} - ${sem}</span></span>
+                        <button class="remove-chip" onclick="removeChip(${i})" title="Remove">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function addSubject() {
+            const inp = document.getElementById('inp-subject');
+            const val = inp.value.trim();
+            if (!val) { showToast('Enter a subject name first.', 'error'); return; }
+
+            const selectedPill = document.querySelector('#dept-selector .dept-pill.selected');
+            if (!selectedPill) { showToast('Please select a department.', 'error'); return; }
+            const selectedDept = selectedPill.getAttribute('data-dept');
+
+            const semSelect = document.getElementById('inp-semester');
+            const selectedSem = semSelect.value;
+            if (!selectedSem) { showToast('Please select a semester.', 'error'); return; }
+
+            const exists = chips.some(c => {
+                const cName = c.subject || c.name || '';
+                const cDept = c.dept || (c.depts && c.depts.length > 0 ? c.depts[0] : '');
+                const cSem = c.semester || '';
+                return cName.toLowerCase() === val.toLowerCase() &&
+                    cDept.toLowerCase() === selectedDept.toLowerCase() &&
+                    cSem.toLowerCase() === selectedSem.toLowerCase();
+            });
+            if (exists) { showToast('Duplicate entry: This subject is already added for this department and semester.', 'error'); return; }
+
+            chips.push({ subject: val, dept: selectedDept, semester: selectedSem });
+            renderChips();
+            inp.value = '';
+            semSelect.value = '';
+            document.querySelectorAll('#dept-selector .dept-pill').forEach(pill => pill.classList.remove('selected'));
+            inp.focus();
+            showToast(`"${val}" added!`, 'success');
+        }
+
+        function removeChip(i) {
+            chips.splice(i, 1);
+            renderChips();
+        }
+
+        // Pre-load chips from saved profile
+        function preloadChips() {
+            if (profile && profile.subjects) {
+                chips = profile.subjects.map(s => {
+                    if (typeof s === 'string') {
+                        return { subject: s, dept: profile.dept || 'CSE', semester: 'sem1' };
+                    } else if (typeof s === 'object' && s.name) {
+                        return {
+                            subject: s.name,
+                            dept: (s.depts && s.depts.length > 0) ? s.depts[0] : (profile.dept || 'CSE'),
+                            semester: s.semester || 'sem1'
+                        };
+                    }
+                    return s;
+                });
+            }
+        }
+
+        // ─────────────── Profile Hero Render ───────────────
+        function renderProfileHero() {
+            if (!profile) return;
+            const initials = profile.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+            document.getElementById('hero-avatar').textContent = initials;
+            document.getElementById('hero-name').textContent = profile.name;
+            document.getElementById('hero-dept').textContent = profile.dept || 'Department';
+            document.getElementById('hero-designation').textContent = profile.designation || '';
+            document.getElementById('hero-subjects-count').textContent = (profile.subjects || []).length;
+            document.getElementById('hero-email-short').textContent = profile.email ? profile.email.split('@')[0] : '—';
+            document.getElementById('hero-phone-short').textContent = profile.phone ? profile.phone.slice(-4) : '—';
+        }
+
+        // ─────────────── Subjects Grid Render ───────────────
+        function renderSubjectsGrid() {
+            const grid = document.getElementById('subjects-grid');
+            const empty = document.getElementById('empty-subjects');
+            if (!profile || !profile.subjects || profile.subjects.length === 0) {
+                grid.innerHTML = '';
+                empty.style.display = 'block';
+                return;
+            }
+            empty.style.display = 'none';
+            grid.innerHTML = profile.subjects.map((sub, i) => {
+                const colorClass = `color-${i % 8}`;
+                const icon = SUBJECT_ICONS[i % SUBJECT_ICONS.length];
+                const name = typeof sub === 'string' ? sub : (sub.subject || sub.name || '');
+                const dept = typeof sub === 'object' ? (sub.dept || (sub.depts ? sub.depts[0] : '')) : '';
+                const sem = typeof sub === 'object' ? (sub.semester || '') : '';
+
+                let displayTag = 'Tap to attend';
+                if (dept && sem) {
+                    displayTag = `${dept} • ${sem.replace('sem', 'Sem ')}`;
+                } else if (dept) {
+                    displayTag = dept;
+                }
+
+                return `
+                    <div class="subject-card" onclick="openSlotSheet('${escHtml(name)}', '${escHtml(dept)}', '${escHtml(sem)}')">
+                        <div class="subject-icon-wrap ${colorClass}">
+                            <i class="fa-solid ${icon}"></i>
+                        </div>
+                        <div class="sub-name">${escHtml(name)}</div>
+                        <div class="sub-tag">${escHtml(displayTag)}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function escHtml(s) {
+            return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        // ─────────────── Slot Sheet ───────────────
+        function openSlotSheet(subjectName, dept, sem) {
+            currentSubject = subjectName;
+            currentDept = dept;
+            currentSem = sem;
+            document.getElementById('sheet-subject-name').textContent = subjectName;
+            document.getElementById('slot-overlay').classList.add('show');
+        }
+
+        function closeSlotSheet(e) {
+            if (e && e.target !== document.getElementById('slot-overlay')) return;
+            document.getElementById('slot-overlay').classList.remove('show');
+        }
+
+        function goToSlot(slotNum) {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('slot-overlay').classList.remove('show');
+            // Store subject context in sessionStorage so fill_attendance page can read it
+            sessionStorage.setItem('attendanceSubject', currentSubject);
+            sessionStorage.setItem('attendanceSemester', currentSem || 'sem1');
+            sessionStorage.setItem('attendanceDept', currentDept || 'CSE');
+            sessionStorage.setItem('attendanceProxy', 'false');
+            window.location.href = `/teacher/fill_attendance?date=${today}&slot=${slotNum}`;
+        }
+
+        // ─────────────── Proxy Modal ───────────────
+        function openProxyModal() {
+            document.getElementById('proxy-email').value = '';
+            document.getElementById('proxy-pass').value = '';
+            selectedProxySlot = null;
+            document.querySelectorAll('.proxy-slot-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('proxy-overlay').classList.add('show');
+        }
+
+        function closeProxyModal() {
+            document.getElementById('proxy-overlay').classList.remove('show');
+        }
+
+        function closeProxyOutside(e) {
+            if (e.target === document.getElementById('proxy-overlay')) closeProxyModal();
+        }
+
+        function selectProxySlot(btn) {
+            document.querySelectorAll('.proxy-slot-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedProxySlot = parseInt(btn.getAttribute('data-slot'));
+        }
+
+        async function verifyProxy() {
+            const email = document.getElementById('proxy-email').value.trim();
+            const pass = document.getElementById('proxy-pass').value.trim();
+
+            if (!email) { showToast('Please enter your email.', 'error'); return; }
+            if (!pass) { showToast('Please enter your password.', 'error'); return; }
+            if (!selectedProxySlot) { showToast('Please select a slot for proxy attendance.', 'error'); return; }
+
+            const btn = document.querySelector('.btn-verify-proxy');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying…';
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, pass })
+                });
+                const data = await res.json();
+
+                if (data.status === 'success' && data.role === 'teacher') {
+                    showToast('✅ Proxy authorized! Redirecting…', 'success');
+                    const today = new Date().toISOString().split('T')[0];
+                    sessionStorage.setItem('attendanceSubject', currentSubject);
+                    sessionStorage.setItem('attendanceSemester', currentSem || 'sem1');
+                    sessionStorage.setItem('attendanceDept', currentDept || 'CSE'); sessionStorage.setItem('attendanceProxy', 'true');
+                    sessionStorage.setItem('proxyEmail', email);
+                    setTimeout(() => {
+                        closeProxyModal();
+                        document.getElementById('slot-overlay').classList.remove('show');
+                        window.location.href = `/teacher/fill_attendance?date=${today}&slot=${selectedProxySlot}`;
+                    }, 900);
+                } else {
+                    showToast('❌ Invalid credentials. Access denied.', 'error');
+                }
+            } catch (err) {
+                showToast('Network error. Please try again.', 'error');
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-shield-check"></i> Verify & Continue';
+        }
+
+        // ─────────────── Toast ───────────────
+        function showToast(msg, type = 'info') {
+            const t = document.getElementById('toast');
+            t.className = `toast ${type}`;
+            t.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-circle-xmark' : 'fa-circle-info'}"></i> ${msg}`;
+            t.classList.add('show');
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // ─────────────── Kickoff ───────────────
+        (function bootstrap() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                profile = JSON.parse(saved);
+                preloadChips();
+                showProfileView();
+            } else {
+                chips = [];
+                showSetupView();
+            }
+        })();
+    </script>
+
+    <!-- Scroll to Top Button -->
+    <button id="globalScrollToTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Go to top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+    <script>
+        window.addEventListener('scroll', () => {
+            const btn = document.getElementById('globalScrollToTopBtn');
+            if (btn) {
+                if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                    btn.style.display = 'flex';
+                } else {
+                    btn.style.display = 'none';
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

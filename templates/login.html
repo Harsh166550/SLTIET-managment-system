@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>SLTIET UMS</title>
+    <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='images/logo.jpg') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#22245b">
+    <style>
+        :root {
+            --primary: #22245b;
+            --accent: #f7941e;
+            --white: #ffffff;
+            --bg-gradient: linear-gradient(-45deg, #f0f2f5, #e1e8ef, #f7f9fc, #ffffff);
+        }
+        @keyframes mesh-bg {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        body { margin: 0; font-family: 'Outfit', sans-serif; background: var(--bg-gradient); background-size: 400% 400%; animation: mesh-bg 15s ease infinite; display: flex; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; }
+        .container { width: 100%; max-width: 950px; margin: 20px; display: flex; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(20px); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); border-radius: 24px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.5); animation: slideUp 1s cubic-bezier(0.16, 1, 0.3, 1); }
+        .left { width: 50%; background: #fff; padding: 60px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        .left::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(34, 36, 91, 0.03) 0%, transparent 70%); animation: rotate 20s linear infinite; }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .left img { max-width: 280px; width: 100%; z-index: 2; filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.1)); animation: float 5s ease-in-out infinite; }
+        .right { width: 50%; padding: 60px; background: rgba(255, 255, 255, 0.4); display: flex; flex-direction: column; justify-content: center; }
+        .right h2 { margin-bottom: 8px; color: var(--primary); font-size: 2rem; font-weight: 700; }
+        .subtitle { color: #64748b; margin-bottom: 40px; font-size: 0.95rem; }
+        .input-box { margin-bottom: 24px; }
+        label { font-weight: 600; display: block; margin-bottom: 10px; color: #475569; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        input { width: 100%; padding: 14px 20px; background: white; border: 2px solid #e2e8f0; border-radius: 12px; font-family: inherit; font-size: 1rem; transition: all 0.3s; box-sizing: border-box; }
+        input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px rgba(247, 148, 30, 0.1); }
+        button { width: 100%; padding: 16px; background: var(--accent); border: none; color: white; font-size: 1.1rem; font-weight: 700; border-radius: 12px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 10px 25px -5px rgba(247, 148, 30, 0.4); margin-top: 10px; }
+        button:hover { background: #ea8a16; transform: translateY(-2px); box-shadow: 0 15px 30px -5px rgba(247, 148, 30, 0.5); }
+        button:active { transform: translateY(0); }
+        #splash-screen { position: fixed; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10000; background: white; transition: all 0.8s ease-out; }
+        .logo-container { width: 150px; height: 150px; margin-bottom: 25px; padding: 10px; border-radius: 50%; background: rgba(255, 255, 255, 0.8); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); display: flex; justify-content: center; align-items: center; }
+        #splash-logo { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; animation: rotate-logo 4s linear infinite; }
+        @keyframes rotate-logo { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .loader-text { font-size: 0.9rem; font-weight: 600; color: var(--primary); letter-spacing: 5px; text-transform: uppercase; margin-top: 15px; animation: fadeInOut 2s ease-in-out infinite; }
+        @keyframes fadeInOut { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
+        .loader-progress { width: 180px; height: 3px; background: #eee; border-radius: 10px; margin-top: 20px; position: relative; overflow: hidden; }
+        .loader-progress::after { content: ''; position: absolute; left: -100%; width: 80%; height: 100%; background: var(--accent); animation: move-load 1.8s ease-in-out infinite; }
+        @keyframes move-load { 0% { left: -100%; width: 20%; } 50% { width: 50%; } 100% { left: 150%; width: 20%; } }
+        @media (max-width: 768px) {
+            .container { flex-direction: column; max-width: 440px; border-radius: 32px; }
+            .left, .right { width: 100%; padding: 40px; }
+            .left { background: var(--white); padding: 50px 40px 30px; }
+            .left img { max-width: 180px; }
+            .right h2 { font-size: 1.5rem; }
+        }
+    </style>
+        <script src="{{ url_for('static', filename='config.js') }}"></script>
+        <script>
+            // Ensure API_BASE_URL is defined
+            if (typeof API_BASE_URL === 'undefined') {
+                const API_BASE_URL = window.location.origin;
+            }
+        </script>
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div id="splash-screen">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='images/logo1-removebg-preview.png') }}" alt="SLTIET Logo" id="splash-logo">
+        </div>
+        <div class="loader-text">SLTIET Portal Loading</div>
+        <div class="loader-progress"></div>
+    </div>
+    <script>
+        // High-end Splash Screen Logic
+        window.addEventListener('load', () => {
+            const splash = document.getElementById('splash-screen');
+            const mainContent = document.querySelector('.container');
+            setTimeout(() => {
+                splash.style.opacity = '0';
+                splash.style.visibility = 'hidden';
+                mainContent.style.display = 'flex';
+                mainContent.style.animation = 'slideUp 1.2s cubic-bezier(0.16, 1, 0.3, 1)';
+            }, 2500);
+        });
+    </script>
+    <div class="container" style="display: none;">
+        <!-- Left Section -->
+        <div class="left">
+            <img src="{{ url_for('static', filename='images/logo1-removebg-preview.png') }}" alt="SLTIET logo">
+        </div>
+        <!-- Right Section -->
+        <div class="right">
+            <h2>Welcome Back</h2>
+            <div class="subtitle">Please enter your credentials to access the portal.</div>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="input-box">
+                    <label>Enrollment / Email</label>
+                    <input type="text" id="email" placeholder="Enrollment No (e.g. 240890131001)" required>
+                    <small style="font-size: 0.75rem; color: #64748b; display: block; margin-top: 5px;">
+                        Students: Use your enrollment number + .ce24@sltiet.edu.in
+                    </small>
+                </div>
+                <div class="input-box">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="••••••••" required>
+                </div>
+                <button type="submit">Gateway Login</button>
+
+            </form>
+            <p id="errorMsg" style="color: #ef4444; margin-top: 15px; font-size: 0.9rem; text-align: center;"></p>
+        </div>
+    </div>
+    <script>
+        async function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+            errorMsg.textContent = 'Logging in...';
+            errorMsg.style.color = '#64748b';
+            // Admin faculty credentials check
+            const adminEmails = ['principal@sltiet.edu.in', 'computer@sltiet.edu.in', 'science@sltiet.edu.in', 'mechanical@sltiet.edu.in', 'civil@sltiet.edu.in', 'electrical@sltiet.edu.in'];
+            if (adminEmails.includes(email) && password === 'admin@123') {
+                // Set role for faculty and redirect to faculty dashboard
+                localStorage.setItem('userRole', 'teacher');
+                localStorage.setItem('teacherEmail', email);
+                window.location.replace('/teacher');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, password: password })
+                });
+                const data = await response.json();
+                console.log('Login response:', data);
+                if (response.ok && data.status === 'success') {
+                    if (data.role === 'teacher') {
+                        localStorage.setItem('userRole', 'teacher');
+                        localStorage.setItem('teacherEmail', email);
+                        window.API_BASE_URL = localStorage.getItem('API_BASE_URL') || 'http://10.0.2.2:5000';
+                        console.log('Redirecting teacher to dashboard');
+                    } else if (data.role === 'student') {
+                        localStorage.setItem('userRole', 'student');
+                        localStorage.setItem('studentRoll', data.roll);
+                        localStorage.setItem('studentName', data.name);
+                        localStorage.setItem('studentClass', data.class || '');
+                        if (data.class) {
+                            const parts = data.class.split(' ');
+                            if (parts.length >= 2) {
+                                localStorage.setItem('studentBranch', parts[0]);
+                                localStorage.setItem('studentSem', parts[1]);
+                            }
+                        } else {
+                            localStorage.removeItem('studentBranch');
+                            localStorage.removeItem('studentSem');
+                        }
+                    }
+                    let target = data.redirect || (data.role === 'teacher' ? '/faculty_dashboard' : '/student');
+                    window.location.replace(target);
+                } else {
+                    errorMsg.style.color = '#ef4444';
+                    errorMsg.textContent = data.message || 'Invalid credentials';
+                }
+            } catch (err) {
+                errorMsg.style.color = '#ef4444';
+                errorMsg.textContent = 'An error occurred. Please try again.';
+            }
+        }
+
+</script>
+</body>
+</html>

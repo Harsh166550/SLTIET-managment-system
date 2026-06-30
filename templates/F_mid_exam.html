@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Academic Results - SLTIET Faculty</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='student_style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .section {
+            display: none;
+            margin-top: 30px;
+            animation: slideUp 0.6s ease-out both;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 18px 20px;
+            text-align: left;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        th {
+            background: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+        }
+
+        td {
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* New Action Component Styles */
+        .btn-action {
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: none;
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .upload-btn {
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+
+        .upload-btn:hover {
+            background: #c7d2fe;
+        }
+
+        .save-btn {
+            background: var(--accent);
+            color: white;
+        }
+
+        .save-btn:hover {
+            opacity: 0.9;
+        }
+
+        .save-btn:disabled {
+            background: #e2e8f0;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .view-link {
+            color: var(--accent);
+            font-weight: 600;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header-info">
+        <button class="back-link" onclick="window.history.back()">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <h2>Examination Portal</h2>
+        <p>SLTIET Faculty Administration</p>
+    </div>
+
+    <div class="container" style="padding-top: 0;">
+        <div class="grid">
+
+            <div class="card" onclick="showEntry()">
+                <i class="fa-solid fa-file-signature icon"></i>
+                <p>Mark Entry</p>
+            </div>
+            <div class="card" onclick="showPapers()">
+                <i class="fa-solid fa-file-lines icon"></i>
+                <p>Question Papers</p>
+            </div>
+        </div>
+
+        <!-- Marks Section -->
+        <div id="marksSection" class="section">
+            <div class="glass-card">
+                <h3>Mid Marks Assessment</h3>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px;">Review internal assessment
+                    marks for all students in the selected semester.</p>
+                <div style="display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;">
+                    <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 200px;">
+                        <label>Semester</label>
+                        <select id="marksSemester" class="form-control">
+                            <option value="">Select Semester</option>
+                            <option value="1">Sem 1</option>
+                            <option value="2">Sem 2</option>
+                            <option value="3">Sem 3</option>
+                            <option value="4">Sem 4</option>
+                            <option value="5">Sem 5</option>
+                            <option value="6">Sem 6</option>
+                            <option value="7">Sem 7</option>
+                            <option value="8">Sem 8</option>
+                        </select>
+                    </div>
+                    <button class="btn-premium" onclick="loadMarks()" style="width: auto; padding: 14px 25px;">Show
+                        Data</button>
+                </div>
+
+                <div class="table-container" id="marksTableContainer" style="display: none;">
+                    <table id="marksTable">
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Average Marks</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Entry Section -->
+        <div id="entrySection" class="section">
+            <div class="glass-card">
+                <h3>Mid-Exam Entry</h3>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px;">Input student marks for
+                    internal assessments. Maximum marks: 30.</p>
+
+                <div style="display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 20px;">
+                    <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 150px;">
+                        <label>Semester</label>
+                        <select id="entrySemester" class="form-control">
+                            <option value="">Select Semester</option>
+                            <option value="1">Sem 1</option>
+                            <option value="2">Sem 2</option>
+                            <option value="3">Sem 3</option>
+                            <option value="4">Sem 4</option>
+                            <option value="5">Sem 5</option>
+                            <option value="6">Sem 6</option>
+                            <option value="7">Sem 7</option>
+                            <option value="8">Sem 8</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 150px;">
+                        <label>Subject</label>
+                        <select id="entrySubject" class="form-control">
+                            <option value="">Select Subject</option>
+                            <option value="Machine Learning">Machine Learning</option>
+                            <option value="Environment Studies">Environment Studies</option>
+                            <option value="Compiler Design">Compiler Design</option>
+                        </select>
+                    </div>
+                    <button class="btn-premium" onclick="startEntry()" style="width: auto; padding: 14px 25px;">Load
+                        Students</button>
+                </div>
+
+                <div class="table-container" id="entryTableContainer" style="display: none;">
+                    <table id="entryTable">
+                        <thead>
+                            <tr>
+                                <th>Roll No</th>
+                                <th>Student Name</th>
+                                <th>Marks (/30)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="entryStudentBody"></tbody>
+                    </table>
+                    <div style="padding: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn-premium" onclick="saveMarks()">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> Save All Marks
+                        </button>
+                        <button class="btn-premium" onclick="exportMarksToExcel()" style="background: #22c55e;">
+                            <i class="fa-solid fa-file-excel"></i> Export to Excel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Papers Section -->
+        <div id="paperSection" class="section">
+            <div class="glass-card">
+                <h3>Mid Papers Repository</h3>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px;">Access and manage internal
+                    examination papers.</p>
+                <div style="display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;">
+                    <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 200px;">
+                        <label>Semester</label>
+                        <select id="paperSemester" class="form-control">
+                            <option value="">Select Semester</option>
+                            <option value="1">Sem 1</option>
+                            <option value="2">Sem 2</option>
+                            <option value="3">Sem 3</option>
+                            <option value="4">Sem 4</option>
+                            <option value="5">Sem 5</option>
+                            <option value="6">Sem 6</option>
+                            <option value="7">Sem 7</option>
+                            <option value="8">Sem 8</option>
+                        </select>
+                    </div>
+                    <button class="btn-premium" onclick="loadPapers()" style="width: auto; padding: 14px 25px;">Show
+                        Papers</button>
+                </div>
+
+                <div class="table-container" id="paperTableContainer" style="display: none;">
+                    <table id="paperTable">
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Preview</th>
+                                <th>Upload Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showMarks() {
+            hideAll();
+            document.getElementById("marksSection").style.display = "block";
+            window.scrollTo({ top: document.getElementById("marksSection").offsetTop - 20, behavior: 'smooth' });
+        }
+        function showEntry() {
+            hideAll();
+            document.getElementById("entrySection").style.display = "block";
+            window.scrollTo({ top: document.getElementById("entrySection").offsetTop - 20, behavior: 'smooth' });
+        }
+        function showPapers() {
+            hideAll();
+            document.getElementById("paperSection").style.display = "block";
+            window.scrollTo({ top: document.getElementById("paperSection").offsetTop - 20, behavior: 'smooth' });
+        }
+
+        function hideAll() {
+            document.getElementById("marksSection").style.display = "none";
+            document.getElementById("entrySection").style.display = "none";
+            document.getElementById("paperSection").style.display = "none";
+        }
+
+        async function startEntry() {
+            const semester = document.getElementById("entrySemester").value;
+            const subject = document.getElementById("entrySubject").value;
+            if (!semester || !subject) return alert("Please select both semester and subject");
+
+            try {
+                const res = await fetch('/api/students');
+                const students = await res.json();
+
+                // Fetch existing marks
+                const marksRes = await fetch(`/api/get_marks?semester=${semester}&subject=${encodeURIComponent(subject)}`);
+                const existingMarks = await marksRes.json();
+
+                const tableBody = document.getElementById("entryStudentBody");
+                tableBody.innerHTML = '';
+
+                if (students.length === 0) {
+                    alert("No students found. Please upload student list first.");
+                    return;
+                }
+
+                students.forEach(s => {
+                    const currentMark = existingMarks[s.roll] !== undefined ? existingMarks[s.roll] : '';
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                    <td>${s.roll}</td>
+                    <td>${s.name}</td>
+                    <td><input type="number" class="form-control mark-input" data-roll="${s.roll}" max="30" min="0" value="${currentMark}" placeholder="0-30"></td>
+                `;
+                    tableBody.appendChild(tr);
+                });
+
+                document.getElementById("entryTableContainer").style.display = "block";
+            } catch (e) {
+                console.error(e);
+                alert("Failed to load students");
+            }
+        }
+
+        async function saveMarks() {
+            const semester = document.getElementById("entrySemester").value;
+            const subject = document.getElementById("entrySubject").value;
+            const inputs = document.querySelectorAll(".mark-input");
+
+            const marksData = {};
+            inputs.forEach(input => {
+                marksData[input.dataset.roll] = input.value;
+            });
+
+            const payload = {
+                semester,
+                subject,
+                marks: marksData
+            };
+
+            try {
+                const res = await fetch('/api/save_marks', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    alert("Success: Marks for " + subject + " saved successfully!");
+                    document.getElementById("entryTableContainer").style.display = "none";
+                } else {
+                    alert("Failed to save marks: " + data.message);
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Error connecting to server to save marks");
+            }
+        }
+
+        function exportMarksToExcel() {
+            const semester = document.getElementById("entrySemester").value;
+            const subject = document.getElementById("entrySubject").value;
+            if (!semester || !subject) {
+                alert("Please select semester and subject first.");
+                return;
+            }
+
+            const inputs = document.querySelectorAll(".mark-input");
+            if (inputs.length === 0) {
+                alert("No student marks to export.");
+                return;
+            }
+
+            let csvContent = "\uFEFF"; // UTF-8 BOM for Excel to open correct encoding
+            csvContent += "Roll No,Student Name,Marks (/30)\n";
+
+            inputs.forEach(input => {
+                const row = input.closest('tr');
+                const roll = row.cells[0].innerText.trim();
+                const name = row.cells[1].innerText.trim().replace(/,/g, ''); // escape comma
+                const mark = input.value.trim();
+                csvContent += `${roll},${name},${mark}\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            if (navigator.msSaveBlob) { // IE 10+
+                navigator.msSaveBlob(blob, `Marks_${subject.replace(/\s+/g, '_')}_Sem_${semester}.csv`);
+            } else {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", `Marks_${subject.replace(/\s+/g, '_')}_Sem_${semester}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        async function loadMarks() {
+            const semester = document.getElementById("marksSemester").value;
+            if (!semester) return alert("Please select a semester");
+
+            try {
+                const res = await fetch(`/api/get_marks?semester=${semester}`);
+                const semData = await res.json();
+                
+                const tableContainer = document.getElementById("marksTableContainer");
+                const tableBody = document.getElementById("marksTable").querySelector('tbody');
+                tableBody.innerHTML = '';
+                
+                const subjects = Object.keys(semData);
+                if (subjects.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:var(--text-muted);">No marks entered for this semester yet.</td></tr>`;
+                } else {
+                    subjects.forEach(sub => {
+                        const studentMarksObj = semData[sub] || {};
+                        const marksValues = Object.values(studentMarksObj).map(Number).filter(v => !isNaN(v));
+                        let avg = 0;
+                        if (marksValues.length > 0) {
+                            const sum = marksValues.reduce((a, b) => a + b, 0);
+                            avg = (sum / marksValues.length).toFixed(1);
+                        }
+                        tableBody.innerHTML += `
+                            <tr>
+                                <td>${sub}</td>
+                                <td><strong style="color: var(--accent);">${avg}</strong> / 30</td>
+                            </tr>
+                        `;
+                    });
+                }
+                tableContainer.style.display = "block";
+            } catch (e) {
+                console.error(e);
+                alert("Failed to load average marks");
+            }
+        }
+
+        async function loadPapers() {
+            const semester = document.getElementById("paperSemester").value;
+            if (!semester) return alert("Please select a semester");
+
+            document.getElementById("paperTableContainer").style.display = "block";
+            const tableBody = document.getElementById("paperTable").querySelector('tbody');
+
+            // Define subjects based on semester (could be dynamic later)
+            const subjects = ["Machine Learning", "Environment Studies", "Compiler Design"];
+
+            tableBody.innerHTML = '';
+            subjects.forEach(subject => {
+                const safeId = subject.replace(/\s+/g, '_');
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                <td>${subject}</td>
+                <td id="view_${safeId}">
+                    <span style="color: #94a3b8; font-size: 0.85rem;">No files yet</span>
+                </td>
+                <td>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="file" id="file_${safeId}" accept=".pdf" style="display: none;" onchange="handleFileSelect('${subject}')">
+                        <button class="btn-action upload-btn" onclick="document.getElementById('file_${safeId}').click()">
+                            <i class="fa-solid fa-file-pdf"></i> Upload
+                        </button>
+                        <button class="btn-action save-btn" id="save_${safeId}" onclick="savePaper('${subject}')" disabled>
+                            <i class="fa-solid fa-cloud-arrow-up"></i> Save
+                        </button>
+                    </div>
+                    <small id="status_${safeId}" style="display: block; margin-top: 5px; font-size: 0.75rem; color: var(--text-muted);"></small>
+                </td>
+            `;
+                tableBody.appendChild(tr);
+            });
+
+            // Load existing papers from backend
+            try {
+                const res = await fetch('/api/academic_data');
+                const data = await res.json();
+                if (data.mid_papers && data.mid_papers[semester]) {
+                    Object.entries(data.mid_papers[semester]).forEach(([sub, path]) => {
+                        const safeId = sub.replace(/\s+/g, '_');
+                        const viewTd = document.getElementById(`view_${safeId}`);
+                        if (viewTd) {
+                            viewTd.innerHTML = `<a href="${path}" target="_blank" class="view-link"><i class="fa-solid fa-file-pdf"></i> View Paper</a>`;
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error("Failed to load papers data", e);
+            }
+        }
+
+        function handleFileSelect(subject) {
+            const safeId = subject.replace(/\s+/g, '_');
+            const fileInput = document.getElementById(`file_${safeId}`);
+            const saveBtn = document.getElementById(`save_${safeId}`);
+            const statusText = document.getElementById(`status_${safeId}`);
+
+            if (fileInput.files.length > 0) {
+                saveBtn.disabled = false;
+                statusText.innerText = "Selected: " + fileInput.files[0].name;
+                statusText.style.color = "var(--accent)";
+            }
+        }
+
+        async function savePaper(subject) {
+            const semester = document.getElementById("paperSemester").value;
+            const safeId = subject.replace(/\s+/g, '_');
+            const fileInput = document.getElementById(`file_${safeId}`);
+            const statusText = document.getElementById(`status_${safeId}`);
+            const saveBtn = document.getElementById(`save_${safeId}`);
+
+            if (fileInput.files.length === 0) return;
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('semester', semester);
+            formData.append('subject', subject);
+            formData.append('category', 'mid_paper');
+
+            statusText.innerText = "Uploading to server...";
+            statusText.style.color = "var(--text-muted)";
+            saveBtn.disabled = true;
+
+            try {
+                const res = await fetch('/api/upload_academic', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await res.json();
+                if (result.status === 'success') {
+                    statusText.innerText = "Saved successfully!";
+                    statusText.style.color = "#10b981";
+                    document.getElementById(`view_${safeId}`).innerHTML = `<a href="${result.path}" target="_blank" class="view-link"><i class="fa-solid fa-file-pdf"></i> View Paper</a>`;
+                } else {
+                    statusText.innerText = "Upload failed: " + result.message;
+                    statusText.style.color = "#ef4444";
+                    saveBtn.disabled = false;
+                }
+            } catch (e) {
+                statusText.innerText = "Error connecting to server";
+                statusText.style.color = "#ef4444";
+                saveBtn.disabled = false;
+            }
+        }
+
+        async function loadFacultySubjects() {
+            const email = localStorage.getItem('teacherEmail') || '';
+            const subjectSelect = document.getElementById('entrySubject');
+            if (email) {
+                try {
+                    const profileRes = await fetch(`/api/get_teacher_profile?email=${encodeURIComponent(email)}`);
+                    const profileData = await profileRes.json();
+                    if (profileData && Array.isArray(profileData.subjects)) {
+                        if (profileData.subjects.length > 0) {
+                            subjectSelect.innerHTML = profileData.subjects.map(sub => {
+                                const subName = typeof sub === 'string' ? sub : sub.name;
+                                return `<option value="${subName}">${subName}</option>`;
+                            }).join('');
+                        } else {
+                            subjectSelect.innerHTML = '<option value="">No subjects assigned</option>';
+                        }
+                    } else {
+                        subjectSelect.innerHTML = '<option value="">No subjects assigned</option>';
+                    }
+                } catch (e) {
+                    console.error('Failed to load faculty subjects:', e);
+                    subjectSelect.innerHTML = '<option value="">Select Subject</option>';
+                }
+            }
+        }
+        
+        document.addEventListener("DOMContentLoaded", loadFacultySubjects);
+    </script>
+
+    <!-- Scroll to Top Button -->
+    <button id="globalScrollToTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Go to top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+    <script>
+        window.addEventListener('scroll', () => {
+            const btn = document.getElementById('globalScrollToTopBtn');
+            if (btn) {
+                if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                    btn.style.display = 'flex';
+                } else {
+                    btn.style.display = 'none';
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#22245b">
+    <title>Fill Attendance - SLTIET Faculty</title>
+    <link rel="stylesheet" href="static/attendance.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --sidebar-width: 320px;
+        }
+
+        .attendance-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .controls-row {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+
+        .main-workspace {
+            display: grid;
+            grid-template-columns: var(--sidebar-width) 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .status-sidebar {
+            position: sticky;
+            top: 100px;
+        }
+
+        .student-list-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 24px;
+            min-height: 500px;
+        }
+
+        .entry-card {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .entry-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .entry-card h3 {
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slot-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .slot-btn {
+            background: #f1f5f9;
+            padding: 12px 8px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            cursor: pointer;
+            border: 2px solid transparent;
+            font-size: 0.9rem;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .slot-btn.active {
+            background: rgba(247, 148, 30, 0.1);
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: scale(1.02);
+        }
+
+        .status-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .status-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 15px;
+            border-radius: 12px;
+            background: #f8fafc;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .status-option:hover {
+            background: #f1f5f9;
+        }
+
+        .status-option input { display: none; }
+
+        .status-circle {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .status-option input:checked + .status-circle {
+            transform: scale(1.1);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+            outline: 3px solid var(--primary);
+            outline-offset: 3px;
+        }
+
+        .sc-p { background-color: var(--present); }
+        .sc-a { background-color: var(--absent); }
+        .sc-h { background-color: var(--holiday); }
+        .sc-s { background-color: var(--suspend); }
+        .sc-l { background-color: var(--late); }
+
+        .btn-save {
+            background: linear-gradient(135deg, var(--accent), #ea8a16);
+            color: white;
+            padding: 16px 40px;
+            border-radius: 14px;
+            border: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            box-shadow: 0 10px 20px -5px rgba(247, 148, 30, 0.4);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .btn-save:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px -5px rgba(247, 148, 30, 0.5);
+        }
+
+        .student-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+
+        .student-table th {
+            text-align: left;
+            padding: 10px 15px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .student-row {
+            background: #f8fafc;
+        }
+
+        .student-row td {
+            padding: 15px;
+        }
+
+        .student-row td:first-child {
+            border-radius: 12px 0 0 12px;
+            font-weight: 600;
+        }
+
+        .student-row td:last-child {
+            border-radius: 0 12px 12px 0;
+            text-align: right;
+        }
+
+        .avatar-dummy {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        @media (max-width: 992px) {
+            .main-workspace {
+                grid-template-columns: 1fr;
+            }
+            .status-sidebar {
+                position: static;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .controls-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <script src="config.js"></script>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <button class="back-btn" onclick="window.location.href='teacher.html'"><i class="fas fa-arrow-left"></i></button>
+            <h1>Attendance Entry</h1>
+        </div>
+    </header>
+
+    <main class="attendance-container">
+        <!-- Top Row: Date and Slot Selection -->
+        <div class="controls-row">
+            <div class="entry-card">
+                <h3><i class="fas fa-calendar-day"></i> 1. Select Date</h3>
+                <div class="calendar-info" id="open-calendar-picker" style="cursor: pointer; margin-top: 10px;">
+                    <i class="far fa-calendar-alt"></i>
+                    <span id="current-selected-date"></span>
+                </div>
+            </div>
+
+            <div class="entry-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h3><i class="fas fa-clock"></i> 2. Select Lecture Slot</h3>
+                    <button id="btn-proxy" class="btn-premium" style="padding: 6px 12px; border-radius: 8px; background: rgba(34, 36, 91, 0.1); color: var(--primary); border: 2px solid var(--primary); font-size: 0.8rem; cursor: pointer; font-weight: 600;">
+                        <i class="fas fa-user-shield"></i> Proxy Attendance
+                    </button>
+                </div>
+                <div class="slot-selector">
+                    <div class="slot-btn" onclick="openSlot(1)">Slot 1</div>
+                    <div class="slot-btn" onclick="openSlot(2)">Slot 2</div>
+                    <div class="slot-btn" onclick="openSlot(3)">Slot 3</div>
+                    <div class="slot-btn" onclick="openSlot(4)">Slot 4</div>
+                    <div class="slot-btn" onclick="openSlot(5)">Slot 5</div>
+                </div>
+            </div>
+        </div>
+
+
+    </main>
+
+    <!-- Calendar Picker Modal simplified for Entry -->
+    <div id="picker-modal" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <button id="cancel-picker">Cancel</button>
+                <button id="done-picker">Done</button>
+            </div>
+            <div class="picker-body">
+                <div class="picker-column" id="year-column"></div>
+                <div class="picker-column" id="month-column"></div>
+                <div class="picker-column" id="day-column"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Proxy Login Modal -->
+    <div id="proxy-modal" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content" style="max-width: 400px; padding: 30px; border-radius: 20px; background: white; margin: auto; margin-top: 15vh;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <i class="fas fa-user-shield" style="font-size: 3rem; color: var(--primary); margin-bottom: 15px;"></i>
+                <h2 style="color: var(--primary);">Proxy Authorization</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Please verify your identity to fill attendance as proxy.</p>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <div class="input-box">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Teacher Email</label>
+                    <input type="email" id="proxy-email" placeholder="teacher@sltiet.ac.in" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd;">
+                </div>
+                <div class="input-box">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Authorization Password</label>
+                    <input type="password" id="proxy-pass" placeholder="••••••••" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd;">
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button id="close-proxy" style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #ddd; cursor: pointer; background: white;">Cancel</button>
+                    <button id="auth-proxy" style="flex: 2; padding: 12px; border-radius: 10px; border: none; cursor: pointer; background: var(--primary); color: white; font-weight: 600;">Verify & Continue</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openSlot(slotNum) {
+            const date = document.getElementById('current-selected-date').textContent;
+            window.location.href = `/teacher/fill_attendance?date=${date}&slot=${slotNum}`;
+        }
+
+        // Excel Upload
+        document.getElementById('excel-upload')?.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const res = await fetch(API_BASE_URL + '/api/upload_students', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await res.json();
+            if (result.status === 'success') {
+                alert(`Successfully imported ${result.count} students!`);
+            } else {
+                alert('Upload failed: ' + result.message);
+            }
+        });
+
+        // Proxy Logic
+        const proxyModal = document.getElementById('proxy-modal');
+        let isProxyAuthed = false;
+
+        document.getElementById('btn-proxy').addEventListener('click', () => {
+            if(isProxyAuthed) {
+                alert("You are already authorized as proxy.");
+                return;
+            }
+            proxyModal.classList.add('show');
+        });
+
+        document.getElementById('close-proxy').addEventListener('click', () => proxyModal.classList.remove('show'));
+
+        document.getElementById('auth-proxy').addEventListener('click', async () => {
+            const email = document.getElementById('proxy-email').value;
+            const pass = document.getElementById('proxy-pass').value;
+
+            const res = await fetch(API_BASE_URL + '/api/proxy_login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, pass })
+            });
+
+            const result = await res.json();
+            if(result.status === 'success') {
+                isProxyAuthed = true;
+                alert("Proxy Authorization Successful!");
+                proxyModal.classList.remove('show');
+                document.getElementById('btn-proxy').innerHTML = '<i class="fas fa-check-circle"></i> Proxy Active';
+                document.getElementById('btn-proxy').style.background = 'rgba(16, 185, 129, 0.1)';
+                document.getElementById('btn-proxy').style.color = '#10b981';
+                document.getElementById('btn-proxy').style.borderColor = '#10b981';
+            } else {
+                alert("Verification failed: " + result.message);
+            }
+        });
+
+        // Date Picker Init
+         const dateDisplay = document.getElementById('current-selected-date');
+         // Auto‑set to today’s date on load
+         dateDisplay.textContent = new Date().toISOString().split('T')[0];
+         const pickerModal = document.getElementById('picker-modal');
+        const yearCol = document.getElementById('year-column');
+        const monthCol = document.getElementById('month-column');
+        const dayCol = document.getElementById('day-column');
+        
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        for(let y=2024; y<=2026; y++){
+            const div = document.createElement('div'); div.className = 'picker-item' + (y===2026?' active':''); div.textContent = y; yearCol.appendChild(div);
+        }
+        months.forEach((m, i) => {
+           const div = document.createElement('div'); div.className = 'picker-item' + (i===new Date().getMonth()?' active':''); div.textContent = m; monthCol.appendChild(div);
+        });
+        for(let d=1; d<=31; d++){
+           const div = document.createElement('div'); div.className = 'picker-item' + (d===new Date().getDate()?' active':''); div.textContent = d.toString().padStart(2,'0'); dayCol.appendChild(div);
+        }
+
+        document.querySelectorAll('.picker-item').forEach(item => {
+            item.addEventListener('click', () => {
+                item.parentElement.querySelectorAll('.picker-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+
+        document.getElementById('open-calendar-picker').addEventListener('click', () => pickerModal.classList.add('show'));
+        document.getElementById('cancel-picker').addEventListener('click', () => pickerModal.classList.remove('show'));
+        document.getElementById('done-picker').addEventListener('click', () => {
+            const y = document.querySelector('#year-column .active').textContent;
+            const m = document.querySelector('#month-column .active').textContent;
+            const d = document.querySelector('#day-column .active').textContent;
+            const monthIdx = months.indexOf(m) + 1;
+            const formattedDate = `${y}-${monthIdx.toString().padStart(2,'0')}-${d.toString().padStart(2,'0')}`;
+            dateDisplay.textContent = formattedDate;
+            pickerModal.classList.remove('show');
+        });
+
+        // Initial Load
+        fetchStudents().then(() => {
+            fetchExistingAttendance(dateDisplay.textContent, activeSlot);
+        });
+    </script>
+</body>
+</html>

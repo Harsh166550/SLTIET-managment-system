@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Academic Results - SLTIET</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='student_style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .section { display: none; margin-top: 30px; animation: slideUp 0.6s ease-out both; }
+        .table-container { 
+            background: white; 
+            border-radius: 20px; 
+            overflow: hidden; 
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+            margin-top: 20px;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 18px 20px; text-align: left; border-bottom: 1px solid #f1f5f9; }
+        th { background: #f8fafc; color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.1em; }
+        td { color: var(--text-main); font-size: 0.95rem; }
+        tr:last-child td { border-bottom: none; }
+    </style>
+</head>
+<body>
+
+<div class="header-info">
+    <button class="back-link" onclick="window.history.back()">
+        <i class="fa-solid fa-arrow-left"></i>
+    </button>
+    <h2>Examination Portal</h2>
+    <p>SLTIET Internal Assessments</p>
+</div>
+
+<div class="container" style="padding-top: 0;">
+    <div class="grid">
+        <div class="card" onclick="showMarks()">
+            <i class="fa-solid fa-list-check icon"></i>
+            <p>View Marks</p>
+        </div>
+        <div class="card" onclick="showPapers()">
+            <i class="fa-solid fa-file-lines icon"></i>
+            <p>Question Papers</p>
+        </div>
+    </div>
+
+    <!-- Marks Section -->
+    <div id="marksSection" class="section">
+        <div class="glass-card">
+            <h3>Mid Marks</h3>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px;">Select semester to view detailed assessment marks.</p>
+            <div style="display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;">
+                <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 200px;">
+                    <label>Semester</label>
+                    <select id="marksSemester" class="form-control">
+                        <option value="">Select Semester</option>
+                        <option value="1">Sem 1</option><option value="2">Sem 2</option>
+                        <option value="3">Sem 3</option><option value="4">Sem 4</option>
+                        <option value="5">Sem 5</option><option value="6">Sem 6</option>
+                        <option value="7">Sem 7</option><option value="8">Sem 8</option>
+                    </select>
+                </div>
+                <button class="btn-premium" onclick="loadMarks()" style="width: auto; padding: 14px 25px;">Show Marks</button>
+            </div>
+            
+            <div class="table-container" id="marksTableContainer" style="display: none;">
+                <table id="marksTable">
+                    <thead><tr><th>Subject</th><th>Marks obtained</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Papers Section -->
+    <div id="paperSection" class="section">
+        <div class="glass-card">
+            <h3>Mid Papers</h3>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px;">Download question papers for previous internal exams.</p>
+            <div style="display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;">
+                <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 200px;">
+                    <label>Semester</label>
+                    <select id="paperSemester" class="form-control">
+                        <option value="">Select Semester</option>
+                        <option value="1">Sem 1</option><option value="2">Sem 2</option>
+                        <option value="3">Sem 3</option><option value="4">Sem 4</option>
+                        <option value="5">Sem 5</option><option value="6">Sem 6</option>
+                        <option value="7">Sem 7</option><option value="8">Sem 8</option>
+                    </select>
+                </div>
+                <button class="btn-premium" onclick="loadPapers()" style="width: auto; padding: 14px 25px;">Show Papers</button>
+            </div>
+
+            <div class="table-container" id="paperTableContainer" style="display: none;">
+                <table id="paperTable">
+                    <thead><tr><th>Subject</th><th>Download Paper</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Session Check
+    const sName = localStorage.getItem('studentName');
+    const sRoll = localStorage.getItem('studentRoll');
+    if (!sRoll) {
+        window.location.href = '/login';
+    }
+
+    function showMarks() { 
+        document.getElementById("marksSection").style.display = "block"; 
+        document.getElementById("paperSection").style.display = "none"; 
+        window.scrollTo({ top: document.getElementById("marksSection").offsetTop - 20, behavior: 'smooth' });
+    }
+    function showPapers() { 
+        document.getElementById("paperSection").style.display = "block"; 
+        document.getElementById("marksSection").style.display = "none"; 
+        window.scrollTo({ top: document.getElementById("paperSection").offsetTop - 20, behavior: 'smooth' });
+    }
+    
+    async function loadMarks() {
+        const semester = document.getElementById("marksSemester").value;
+        if(!semester) return alert("Please select a semester");
+        
+        const roll = localStorage.getItem('studentRoll');
+        if(!roll) return;
+        
+        const tableBody = document.getElementById("marksTable").querySelector('tbody');
+        tableBody.innerHTML = `<tr><td colspan="2" style="text-align:center;color:var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr>`;
+        document.getElementById("marksTableContainer").style.display = "block";
+        
+        try {
+            const res = await fetch(`/api/get_marks?semester=${semester}&roll=${roll}`);
+            const data = await res.json();
+            tableBody.innerHTML = '';
+            
+            const semMarks = data[semester] || {};
+            const subjects = Object.keys(semMarks);
+            
+            if (subjects.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:var(--text-muted);">No marks uploaded for this semester yet.</td></tr>`;
+            } else {
+                subjects.forEach(sub => {
+                    const mark = semMarks[sub];
+                    tableBody.innerHTML += `
+                        <tr>
+                            <td>${sub}</td>
+                            <td><strong style="color: var(--accent);">${mark}</strong> / 30</td>
+                        </tr>
+                    `;
+                });
+            }
+        } catch (e) {
+            console.error(e);
+            tableBody.innerHTML = `<tr><td colspan="2" style="text-align:center;color:red;">Error loading marks.</td></tr>`;
+        }
+    }
+
+    async function loadPapers() {
+        const semester = document.getElementById("paperSemester").value;
+        if(!semester) return alert("Please select a semester");
+
+        const tableBody = document.getElementById("paperTable").querySelector('tbody');
+        tableBody.innerHTML = `<tr><td colspan="2" style="text-align:center;color:var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr>`;
+        document.getElementById("paperTableContainer").style.display = "block";
+
+        try {
+            const res = await fetch('/api/academic_data');
+            const data = await res.json();
+            tableBody.innerHTML = '';
+            
+            if (data.mid_papers && data.mid_papers[semester]) {
+                const papers = data.mid_papers[semester];
+                const subjects = Object.keys(papers);
+                if (subjects.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="2" style="text-align:center;color:var(--text-muted);">No papers uploaded for this semester yet.</td></tr>`;
+                } else {
+                    subjects.forEach(sub => {
+                        const path = papers[sub];
+                        tableBody.innerHTML += `
+                            <tr>
+                                <td>${sub}</td>
+                                <td><a href="${path}" target="_blank" style="color: var(--accent); font-weight: 600; text-decoration: none;"><i class="fa-solid fa-circle-down"></i> View PDF Paper</a></td>
+                            </tr>
+                        `;
+                    });
+                }
+            } else {
+                tableBody.innerHTML = `<tr><td colspan="2" style="text-align:center;color:var(--text-muted);">No papers uploaded for this semester yet.</td></tr>`;
+            }
+        } catch (e) {
+            console.error(e);
+            tableBody.innerHTML = `<tr><td colspan="2" style="text-align:center;color:red;">Error loading papers.</td></tr>`;
+        }
+    }
+</script>
+
+    <!-- Scroll to Top Button -->
+    <button id="globalScrollToTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Go to top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+    <script>
+        window.addEventListener('scroll', () => {
+            const btn = document.getElementById('globalScrollToTopBtn');
+            if (btn) {
+                if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                    btn.style.display = 'flex';
+                } else {
+                    btn.style.display = 'none';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

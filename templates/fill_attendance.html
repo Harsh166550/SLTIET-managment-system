@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Mark Attendance - SLTIET Faculty</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='attendance.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --sidebar-width: 280px;
+        }
+
+        .attendance-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .workspace-header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .info-pill {
+            background: rgba(34, 36, 91, 0.05);
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .main-workspace {
+            display: grid;
+            grid-template-columns: var(--sidebar-width) 1fr;
+            gap: 25px;
+            align-items: start;
+        }
+
+        .status-sidebar {
+            position: sticky;
+            top: 20px;
+        }
+
+        .status-options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .entry-card {
+            background: white;
+            padding: 24px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .entry-card h3 {
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bulk-btn {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            color: var(--primary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+        }
+
+        .bulk-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-danger {
+            background: #fff1f2 !important;
+            border-color: #fecdd3 !important;
+            color: #be123c !important;
+        }
+
+        .btn-danger:hover {
+            background: #be123c !important;
+            color: white !important;
+        }
+
+        .bulk-badge {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .bg-p { background-color: #10b981; }
+        .bg-a { background-color: #ef4444; }
+        .bg-h { background-color: #f7941e; }
+        .bg-l { background-color: #eab308; }
+        .bg-s { background-color: #8b5cf6; }
+
+        .student-list-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            padding: 20px;
+            min-height: 600px;
+        }
+
+        .student-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .student-table th {
+            text-align: center;
+            padding: 15px 10px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .student-table th.left-align { text-align: left; }
+
+        .student-row {
+            transition: background 0.2s;
+        }
+
+        .student-row:hover {
+            background: #f8fafc;
+        }
+
+        .student-row td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #f1f5f9;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .student-row td.left-align { text-align: left; }
+
+        .status-radio {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .row-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .avatar-dummy {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, var(--accent), #ea8a16);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(247, 148, 30, 0.4);
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .si-p { background: #10b981; }
+        .si-a { background: #ef4444; }
+        .si-h { background: #f7941e; }
+        .si-l { background: #eab308; }
+        .si-s { background: #8b5cf6; }
+
+        .active-row {
+            background-color: #f0f7ff !important;
+            border-left: 5px solid var(--accent) !important;
+            transform: scale(1.01);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 5px 15px rgba(34, 36, 91, 0.08), inset 0 0 10px rgba(34, 36, 91, 0.02);
+            z-index: 5;
+            position: relative;
+        }
+
+        .active-row td {
+            color: var(--primary) !important;
+            font-weight: 500;
+        }
+
+        .student-row {
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 1100px) {
+            .main-workspace { grid-template-columns: 1fr; }
+            .status-sidebar { position: static; }
+        }
+
+        @media (max-width: 768px) {
+            .workspace-header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+                align-items: stretch;
+            }
+            .workspace-header > div {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            .workspace-header button {
+                flex: 1;
+                min-width: 140px;
+                justify-content: center;
+            }
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+        .dropdown-content-menu a:hover {
+            background-color: #f1f5f9 !important;
+            color: var(--accent) !important;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <button class="back-btn" onclick="window.location.href='/teacher/attendance'"><i class="fas fa-arrow-left"></i></button>
+            <h1>Attendance Sheet</h1>
+        </div>
+    </header>
+
+    <main class="attendance-container">
+        <div class="workspace-header">
+            <div style="display: flex; gap: 15px;">
+                <div class="info-pill">
+                    <i class="far fa-calendar-alt"></i>
+                    <span id="display-date">{{ date }}</span>
+                </div>
+                    <i class="far fa-clock"></i>
+                    <span id="display-slot">Slot {{ slot }}</span>
+                </div>
+                <div class="info-pill" style="padding: 0 10px;">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <select id="attendanceSemester" class="form-control" style="background: transparent; color: white; border: none; font-weight: 600; font-family: inherit; font-size: 0.9rem; cursor: pointer; outline: none;" onchange="loadStudentsAndFilter()">
+                        <option value="sem1" style="color:var(--primary);">Sem 1</option>
+                        <option value="sem2" style="color:var(--primary);">Sem 2</option>
+                        <option value="sem3" style="color:var(--primary);">Sem 3</option>
+                        <option value="sem4" style="color:var(--primary);">Sem 4</option>
+                        <option value="sem5" style="color:var(--primary);">Sem 5</option>
+                        <option value="sem6" selected style="color:var(--primary);">Sem 6</option>
+                        <option value="sem7" style="color:var(--primary);">Sem 7</option>
+                        <option value="sem8" style="color:var(--primary);">Sem 8</option>
+                    </select>
+                </div>
+                <div class="info-pill" style="padding: 0 10px;">
+                    <i class="fa-solid fa-book"></i>
+                    <select id="attendanceSubject" class="form-control" style="background: transparent; color: white; border: none; font-weight: 600; font-family: inherit; font-size: 0.9rem; cursor: pointer; outline: none;">
+                        <option value="" style="color:var(--primary);">Select Subject</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <div class="dropdown-container" style="position: relative; display: inline-block;">
+                    <button class="btn-premium" id="btn-select-all-dropdown" style="background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-check-double"></i> Select All <i class="fas fa-chevron-down" style="font-size: 0.8rem;"></i>
+                    </button>
+                    <div class="dropdown-content-menu" id="select-all-dropdown-menu" style="display: none; position: absolute; top: 100%; left: 0; background: white; min-width: 200px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); border-radius: 12px; padding: 8px 0; z-index: 1000; border: 1px solid rgba(0,0,0,0.08); margin-top: 8px;">
+                        <a href="javascript:void(0)" onclick="selectAllStatus('P')" style="display: flex; align-items: center; gap: 12px; padding: 10px 16px; color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; border-radius: 6px; margin: 2px 8px;">
+                            <span class="status-indicator" style="width: 12px; height: 12px; border-radius: 50%; display: inline-block; background: #10b981;"></span> Present
+                        </a>
+                        <a href="javascript:void(0)" onclick="selectAllStatus('A')" style="display: flex; align-items: center; gap: 12px; padding: 10px 16px; color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; border-radius: 6px; margin: 2px 8px;">
+                            <span class="status-indicator" style="width: 12px; height: 12px; border-radius: 50%; display: inline-block; background: #ef4444;"></span> Absent
+                        </a>
+                        <a href="javascript:void(0)" onclick="selectAllStatus('H')" style="display: flex; align-items: center; gap: 12px; padding: 10px 16px; color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; border-radius: 6px; margin: 2px 8px;">
+                            <span class="status-indicator" style="width: 12px; height: 12px; border-radius: 50%; display: inline-block; background: #f7941e;"></span> Holiday
+                        </a>
+                        <a href="javascript:void(0)" onclick="selectAllStatus('L')" style="display: flex; align-items: center; gap: 12px; padding: 10px 16px; color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; border-radius: 6px; margin: 2px 8px;">
+                            <span class="status-indicator" style="width: 12px; height: 12px; border-radius: 50%; display: inline-block; background: #eab308;"></span> Leave
+                        </a>
+                        <a href="javascript:void(0)" onclick="selectAllStatus('S')" style="display: flex; align-items: center; gap: 12px; padding: 10px 16px; color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; border-radius: 6px; margin: 2px 8px;">
+                            <span class="status-indicator" style="width: 12px; height: 12px; border-radius: 50%; display: inline-block; background: #8b5cf6;"></span> Suspended
+                        </a>
+                    </div>
+                </div>
+                <button class="btn-premium" onclick="document.getElementById('excel-upload').click()" style="background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: 600;">
+                    <i class="fas fa-file-import"></i> Upload Students
+                </button>
+                <input type="file" id="excel-upload" hidden accept=".xlsx, .xls">
+                
+                <button class="btn-premium" onclick="exportAttendance()" style="background: #22c55e; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: 600;">
+                    <i class="fas fa-file-export"></i> Export
+                </button>
+                <button class="btn-save" id="save-attendance">
+                    <i class="fas fa-cloud-upload-alt"></i> Submit Attendance
+                </button>
+            </div>
+        </div>
+
+        <div class="main-workspace">
+            <aside class="status-sidebar">
+                <div class="entry-card">
+                    <h3><i class="fas fa-bolt"></i> Quick Panel</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">Manage current records.</p>
+                    <button class="bulk-btn" onclick="document.getElementById('excel-upload').click()" style="background: #eef2ff; border-color: #cbd5e1;">
+                        <i class="fas fa-file-upload"></i> Upload New Excel
+                    </button>
+                    <button class="bulk-btn btn-danger" onclick="deleteActiveRow()" style="margin-top: 10px;">
+                        <i class="fas fa-user-minus"></i> Delete Highlighted
+                    </button>
+                    <button class="bulk-btn btn-danger" onclick="clearAllStudents()" style="margin-top:10px; background:#fee2e2 !important; border-color:#fca5a5 !important;">Clear All Records</button>
+                </div>
+            </aside>
+
+            <section class="student-list-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="margin: 0; color: var(--primary);"><i class="fas fa-users"></i> Fill Attendance</h3>
+                    <div id="stats" style="color: var(--text-muted); font-size: 0.9rem; font-weight: 600;">
+                        0 Students Total
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="student-table" id="attendance-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 40px;">Sr.</th>
+                                <th class="left-align" style="width: 150px;">Enrollment Number</th>
+                                <th class="left-align">Student Name</th>
+                                <th style="width: 60px; color: #10b981;">P</th>
+                                <th style="width: 60px; color: #ef4444;">A</th>
+                                <th style="width: 60px; color: #f7941e;">H</th>
+                                <th style="width: 60px; color: #eab308;">L</th>
+                                <th style="width: 60px; color: #8b5cf6;">S</th>
+                            </tr>
+                        </thead>
+                        <tbody id="student-list-body">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="no-records-msg" style="display: none; text-align: center; padding: 50px; color: var(--text-muted);">
+                    <i class="fas fa-user-slash" style="font-size: 3rem; margin-bottom: 15px; display: block;"></i>
+                    <p>No student records found. Please upload a student list via Excel in the Hub page.</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        const DATE = "{{ date }}";
+        const SLOT = "slot{{ slot }}";
+        let students = [];
+        let allServerStudents = [];
+        let currentAttendance = {};
+        let teacherProfile = null;
+
+        async function init() {
+            try {
+                // Load logged-in faculty profile to populate subjects
+                const email = localStorage.getItem('teacherEmail') || '';
+                const subjectSelect = document.getElementById('attendanceSubject');
+                if (email) {
+                    try {
+                        const profileRes = await fetch(`/api/get_teacher_profile?email=${encodeURIComponent(email)}`);
+                        const profileData = await profileRes.json();
+                        teacherProfile = profileData;
+                        if (profileData && Array.isArray(profileData.subjects)) {
+                            subjectSelect.innerHTML = profileData.subjects.map(sub => {
+                                const subName = typeof sub === 'string' ? sub : (sub.subject || sub.name);
+                                return `<option value="${subName}" style="color:var(--primary);">${subName}</option>`;
+                            }).join('');
+                        }
+                    } catch (e) {
+                        console.error('Failed to load faculty subjects:', e);
+                    }
+                }
+                if (!subjectSelect.value) {
+                    subjectSelect.innerHTML = '<option value="General" style="color:var(--primary);">General</option>';
+                }
+
+                // Set initial selection from sessionStorage
+                const sessionSub = sessionStorage.getItem('attendanceSubject');
+                const sessionSem = sessionStorage.getItem('attendanceSemester');
+                if (sessionSem) {
+                    document.getElementById('attendanceSemester').value = sessionSem;
+                }
+                if (sessionSub) {
+                    document.getElementById('attendanceSubject').value = sessionSub;
+                }
+
+                // Load students
+                const resStudents = await fetch('/api/students');
+                allServerStudents = await resStudents.json();
+                
+                loadStudentsAndFilter();
+                
+                // Load existing attendance
+                const resAtt = await fetch('/api/attendance');
+                const allAtt = await resAtt.json();
+                const rawSlot = (allAtt[DATE] && allAtt[DATE][SLOT]) ? allAtt[DATE][SLOT] : {};
+                currentAttendance = rawSlot.attendance ? rawSlot.attendance : rawSlot;
+                
+                render();
+            } catch (error) {
+                console.error("Failed to initialize:", error);
+            }
+        }
+
+        function loadStudentsAndFilter() {
+            const selectedSem = document.getElementById('attendanceSemester').value;
+            const subjectSelect = document.getElementById('attendanceSubject');
+            const selectedSubName = subjectSelect.value;
+            
+            let targetDept = sessionStorage.getItem('attendanceDept') || '';
+            if (teacherProfile && Array.isArray(teacherProfile.subjects)) {
+                const matchedSub = teacherProfile.subjects.find(s => {
+                    const name = typeof s === 'string' ? s : (s.subject || s.name || '');
+                    return name.toLowerCase() === selectedSubName.toLowerCase();
+                });
+                if (matchedSub && typeof matchedSub === 'object') {
+                    if (matchedSub.dept) {
+                        targetDept = matchedSub.dept;
+                    }
+                }
+            }
+
+            students = allServerStudents.filter(s => {
+                const nameValid = s.name && s.name.trim() !== "";
+                const rollValid = s.roll && s.roll.trim() !== "";
+                if (!nameValid && !rollValid) return false;
+                
+                if (s.class) {
+                    const classLower = s.class.toLowerCase();
+                    const semMatch = classLower.includes(selectedSem.toLowerCase());
+                    const deptMatch = targetDept ? classLower.includes(targetDept.toLowerCase()) : true;
+                    return semMatch && deptMatch;
+                }
+                return true; // fallback to showing all students if class is not specified
+            });
+
+            if (students.length === 0) {
+                document.getElementById('no-records-msg').style.display = 'block';
+                document.getElementById('attendance-table').style.display = 'none';
+            } else {
+                document.getElementById('no-records-msg').style.display = 'none';
+                document.getElementById('attendance-table').style.display = 'table';
+            }
+            render();
+        }
+
+        function render() {
+            const body = document.getElementById('student-list-body');
+            body.innerHTML = '';
+            
+            students.forEach((s, index) => {
+                const status = currentAttendance[s.roll] || '';
+                const tr = document.createElement('tr');
+                tr.className = 'student-row';
+                tr.setAttribute('data-roll', s.roll);
+                
+                tr.innerHTML = `
+                    <td style="font-weight: 600; color: var(--text-muted);">${index + 1}</td>
+                    <td class="left-align"><code style="font-weight: 600; color: var(--primary);">${s.roll || 'N/A'}</code></td>
+                    <td class="left-align">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div class="avatar-dummy">${(s.name && isNaN(parseInt(s.name)) ? s.name : "ST").substring(0,2).toUpperCase()}</div>
+                            <span style="font-weight: 600; color: #4b5563;">${s.name || ("Student " + (index + 1))}</span>
+                        </div>
+                    </td>
+                    <td><input type="radio" name="status_${s.roll}" class="status-radio" value="P" ${status === 'P' ? 'checked' : ''} onchange="updateRow('${s.roll}', 'P')"></td>
+                    <td><input type="radio" name="status_${s.roll}" class="status-radio" value="A" ${status === 'A' ? 'checked' : ''} onchange="updateRow('${s.roll}', 'A')"></td>
+                    <td><input type="radio" name="status_${s.roll}" class="status-radio" value="H" ${status === 'H' ? 'checked' : ''} onchange="updateRow('${s.roll}', 'H')"></td>
+                    <td><input type="radio" name="status_${s.roll}" class="status-radio" value="L" ${status === 'L' ? 'checked' : ''} onchange="updateRow('${s.roll}', 'L')"></td>
+                    <td><input type="radio" name="status_${s.roll}" class="status-radio" value="S" ${status === 'S' ? 'checked' : ''} onchange="updateRow('${s.roll}', 'S')"></td>
+                `;
+                body.appendChild(tr);
+            });
+
+            document.getElementById('stats').textContent = `${students.length} Students Total`;
+            
+            // Highlight the first row by default for a better experience
+            const firstRow = body.querySelector('.student-row');
+            if (firstRow) {
+                firstRow.classList.add('active-row');
+            }
+        }
+
+        function updateRow(roll, val) {
+            currentAttendance[roll] = val;
+            
+            // Sync radio button state in case it was triggered programmatically
+            const radio = document.querySelector(`input[name="status_${roll}"][value="${val}"]`);
+            if (radio) radio.checked = true;
+
+            // Auto-move to next row logic
+            const allRows = Array.from(document.querySelectorAll('.student-row'));
+            const currentIndex = allRows.findIndex(row => row.getAttribute('data-roll') === roll);
+            
+            allRows.forEach(row => row.classList.remove('active-row'));
+            
+            if (currentIndex !== -1 && currentIndex < allRows.length - 1) {
+                const nextRow = allRows[currentIndex + 1];
+                nextRow.classList.add('active-row');
+                nextRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        // Keyboard Shortcuts for super fast marking
+        document.addEventListener('keydown', (e) => {
+            const activeRow = document.querySelector('.student-row.active-row');
+            if (!activeRow) {
+                // If no row is active, highlight the first row on first keypress
+                const firstRow = document.querySelector('.student-row');
+                if (firstRow) firstRow.classList.add('active-row');
+                return;
+            }
+
+            const roll = activeRow.getAttribute('data-roll');
+            const key = e.key.toUpperCase();
+            
+            // Marking keys
+            const keyMap = {
+                'P': 'P', '1': 'P',
+                'A': 'A', '2': 'A',
+                'H': 'H', '3': 'H',
+                'L': 'L', '4': 'L',
+                'S': 'S', '5': 'S'
+            };
+
+            if (keyMap[key]) {
+                e.preventDefault();
+                updateRow(roll, keyMap[key]);
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                moveHighlight(1);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                moveHighlight(-1);
+            }
+        });
+
+        function moveHighlight(direction) {
+            const allRows = Array.from(document.querySelectorAll('.student-row'));
+            const currentIndex = allRows.findIndex(row => row.classList.contains('active-row'));
+            
+            if (currentIndex === -1) {
+                if (allRows.length > 0) allRows[0].classList.add('active-row');
+                return;
+            }
+
+            const nextIndex = currentIndex + direction;
+            if (nextIndex >= 0 && nextIndex < allRows.length) {
+                allRows.forEach(row => row.classList.remove('active-row'));
+                allRows[nextIndex].classList.add('active-row');
+                allRows[nextIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+
+        document.getElementById('save-attendance').addEventListener('click', async () => {
+            const selectedSem = document.getElementById('attendanceSemester').value;
+            const selectedSub = document.getElementById('attendanceSubject').value;
+            const submitData = {
+                date: DATE,
+                slot: SLOT,
+                semester: selectedSem,
+                subject: selectedSub,
+                attendance: currentAttendance
+            };
+
+            const response = await fetch('/api/attendance', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(submitData)
+            });
+
+            const result = await response.json();
+            if (result.status === 'success') {
+                alert('Attendance saved successfully!');
+            }
+        });
+
+        function exportAttendance() {
+            const selectedSem = document.getElementById('attendanceSemester').value;
+            const selectedSub = document.getElementById('attendanceSubject').value;
+            window.location.href = `/api/export_attendance?date=${DATE}&slot=${SLOT}&semester=${encodeURIComponent(selectedSem)}&subject=${encodeURIComponent(selectedSub)}`;
+        }
+
+        // Excel Upload Logic
+        document.getElementById('excel-upload').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const res = await fetch('/api/upload_students', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await res.json();
+                if (result.status === 'success') {
+                    alert(`Successfully imported ${result.count} students!`);
+                    init(); // Refresh the list
+                } else {
+                    alert('Upload failed: ' + result.message);
+                }
+            } catch (error) {
+                alert('An error occurred during upload.');
+            }
+        });
+
+        async function clearAllStudents() {
+            if (!confirm("Are you sure you want to remove all student records? This cannot be undone.")) return;
+
+            try {
+                const res = await fetch('/api/clear_students', { method: 'POST' });
+                const result = await res.json();
+                if (result.status === 'success') {
+                    alert("All student records have been removed.");
+                    init(); // Refresh the list
+                } else {
+                    alert("Error: " + result.message);
+                }
+            } catch (error) {
+                alert("An error occurred while clearing records.");
+            }
+        }
+
+        async function deleteActiveRow() {
+            const activeRow = document.querySelector('.student-row.active-row');
+            if (!activeRow) {
+                alert("Please click on a student's attendance button first to highlight them.");
+                return;
+            }
+            
+            const roll = activeRow.getAttribute('data-roll');
+            const name = activeRow.querySelector('span').innerText;
+            
+            if (!confirm(`Are you sure you want to permanently delete student: ${name} (${roll})?`)) return;
+            
+            try {
+                const res = await fetch('/api/delete_student', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ roll: roll })
+                });
+                const result = await res.json();
+                if (result.status === 'success') {
+                    init(); // Refresh list (init handles empty state)
+                } else {
+                    alert("Delete failed: " + result.message);
+                }
+            } catch (e) { 
+                console.error(e);
+                alert("An error occurred during deletion."); 
+            }
+        }
+
+        // Select all students as Present
+        function selectAllPresent() {
+            selectAllStatus('P');
+        }
+
+        // Select all students with a specific status (P, A, H, L, S)
+        function selectAllStatus(status) {
+            students.forEach(s => {
+                currentAttendance[s.roll] = status;
+                const radio = document.querySelector(`input[name="status_${s.roll}"][value="${status}"]`);
+                if (radio) radio.checked = true;
+            });
+            render();
+            const selectAllDropdownMenu = document.getElementById('select-all-dropdown-menu');
+            if (selectAllDropdownMenu) {
+                selectAllDropdownMenu.style.display = 'none';
+            }
+        }
+
+        // Toggle select all dropdown menu visibility
+        document.addEventListener('DOMContentLoaded', () => {
+            const selectAllDropdownBtn = document.getElementById('btn-select-all-dropdown');
+            const selectAllDropdownMenu = document.getElementById('select-all-dropdown-menu');
+            
+            if (selectAllDropdownBtn && selectAllDropdownMenu) {
+                selectAllDropdownBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const isDisplayed = selectAllDropdownMenu.style.display === 'block';
+                    selectAllDropdownMenu.style.display = isDisplayed ? 'none' : 'block';
+                });
+                
+                document.addEventListener('click', function() {
+                    selectAllDropdownMenu.style.display = 'none';
+                });
+            }
+
+            // Listen for manual subject dropdown changes to auto-select matching semester & filter students
+            const subjectSelect = document.getElementById('attendanceSubject');
+            if (subjectSelect) {
+                subjectSelect.addEventListener('change', () => {
+                    const selectedSubName = subjectSelect.value;
+                    if (teacherProfile && Array.isArray(teacherProfile.subjects)) {
+                        const matchedSub = teacherProfile.subjects.find(s => {
+                            const name = typeof s === 'string' ? s : (s.subject || s.name || '');
+                            return name.toLowerCase() === selectedSubName.toLowerCase();
+                        });
+                        if (matchedSub && typeof matchedSub === 'object') {
+                            if (matchedSub.semester) {
+                                document.getElementById('attendanceSemester').value = matchedSub.semester;
+                            }
+                            if (matchedSub.dept) {
+                                sessionStorage.setItem('attendanceDept', matchedSub.dept);
+                            }
+                        }
+                    }
+                    loadStudentsAndFilter();
+                });
+            }
+        });
+
+        init();
+    </script>
+</body>
+</html>

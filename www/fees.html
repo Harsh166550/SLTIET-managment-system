@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fee Details - SLTIET</title>
+  <link rel="stylesheet" href="static/student_style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#22245b">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <script src="config.js"></script>
+</head>
+<body>
+
+<div class="header-info">
+    <button class="back-link" onclick="window.location.href='student.html'">
+        <i class="fa-solid fa-arrow-left"></i>
+    </button>
+    <h2>Financial Dashboard</h2>
+    <p>SLTIET Student Accounts</p>
+</div>
+
+<div class="container">
+  <div class="grid" style="display: flex; justify-content: center;">
+    <div class="card" onclick="window.location.href='FeeReceipt.html'" style="min-width: 280px; max-width: 340px; width: 100%;">
+      <i class="fa-solid fa-receipt icon"></i>
+      <p>Fee Receipt</p>
+    </div>
+  </div>
+</div>
+
+<script>
+    // Session Check
+    const sRoll = localStorage.getItem('studentRoll');
+    if (!sRoll) {
+        window.location.href = 'login.html';
+    }
+</script>
+</body>
+</html>

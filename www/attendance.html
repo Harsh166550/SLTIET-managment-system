@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#22245b">
+    <title>Attendance - SLTIET Portal</title>
+    <link rel="stylesheet" href="static/attendance.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="config.js"></script>
+</head>
+<body>
+    <svg style="width:0; height:0; position:absolute;" aria-hidden="true" focusable="false">
+        <defs>
+            <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--accent)" />
+                <stop offset="100%" stop-color="#ea8a16" />
+            </linearGradient>
+        </defs>
+    </svg>
+
+    <header>
+        <div class="header-content">
+            <button class="back-btn" onclick="window.location.href='student.html'"><i class="fas fa-arrow-left"></i></button>
+            <h1>Attendance Portal</h1>
+            <div class="student-info-display" style="margin-left: auto; text-align: right; color: white;">
+                <div id="display-student-name" style="font-weight: 600; font-size: 0.9rem;"></div>
+                <div id="display-student-roll" style="font-size: 0.75rem; opacity: 0.8;"></div>
+            </div>
+            <!-- Hidden input to maintain compatibility with existing script -->
+            <input type="hidden" id="student-roll-input">
+        </div>
+        <div class="tabs">
+            <div class="tab active" data-tab="lecture">LECTURE WISE</div>
+            <div class="tab" data-tab="subject">SUBJECT WISE</div>
+            <div class="indicator"></div>
+        </div>
+    </header>
+
+    <main id="lecture-wise-view">
+        <div class="date-selector-card">
+            <div class="calendar-info">
+                <i class="far fa-calendar-alt" id="open-calendar-picker" style="cursor: pointer; color: var(--accent); padding: 5px;"></i>
+                <span id="current-selected-date">Mar-2026</span>
+            </div>
+            <hr>
+            <div class="legend">
+                <span class="legend-label"><strong>Note:</strong></span>
+                <span class="status-s">S - Suspend</span>
+                <span class="status-h">H - Holiday</span>
+                <span class="status-a">A - Absent</span>
+                <span class="status-l">L - Late</span>
+                <span class="status-p">P - Present</span>
+                <span class="status-r">R - Remaining</span>
+            </div>
+        </div>
+
+        <div class="attendance-table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Slot 1</th>
+                        <th>Slot 2</th>
+                        <th>Slot 3</th>
+                        <th>Slot 4</th>
+                        <th>Slot 5</th>
+                    </tr>
+                </thead>
+                <tbody id="attendance-body">
+                    <!-- Data populated by JS from /api/attendance -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+        
+    <main id="subject-wise-view" style="display: none;">
+        <div class="subject-card-premium">
+            <div class="card-visual">
+                <div class="circular-progress-container">
+                    <svg viewBox="0 0 100 100" class="circular-progress">
+                        <circle class="bg" cx="50" cy="50" r="45"></circle>
+                        <circle class="fg" id="overall-progress-circle" cx="50" cy="50" r="45" stroke-dasharray="283" stroke-dashoffset="283"></circle>
+                    </svg>
+                    <div class="percentage-content">
+                        <span id="overall-percentage">0%</span>
+                        <small>Total Score</small>
+                    </div>
+                </div>
+            </div>
+            <div class="card-stats">
+                <h3>Overall Attendance</h3>
+                <div class="stat-pills">
+                    <div class="pill">
+                        <span class="label">Conducted</span>
+                        <strong id="total-conducted">0</strong>
+                    </div>
+                    <div class="pill">
+                        <span class="label">Attended</span>
+                        <strong id="total-attended">0</strong>
+                    </div>
+                </div>
+                <p class="stat-footer">Update based on your full academic record.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Date Picker Modal -->
+    <div class="modal" id="date-picker-modal">
+        <div class="modal-overlay" id="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <button id="cancel-picker">Cancel</button>
+                <div style="font-weight: 600; color: var(--primary);">Select Date</div>
+                <button id="done-picker">Done</button>
+            </div>
+            <div class="picker-body">
+                <div class="picker-column" id="picker-date">
+                    <!-- Dates 01-31 -->
+                </div>
+                <div class="picker-column" id="picker-month">
+                    <!-- Months Jan-Dec -->
+                </div>
+                <div class="picker-column" id="picker-year">
+                    <!-- Years -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedDate = new Date(); // Defaults to today
+        
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        
+        async function fetchAttendance(year, monthIndex) {
+            const rollNo = localStorage.getItem('studentRoll'); // Updated key
+            const studentName = localStorage.getItem('studentName');
+
+            if (!rollNo) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            document.getElementById('student-roll-input').value = rollNo;
+            document.getElementById('display-student-name').innerText = studentName || 'Student';
+            document.getElementById('display-student-roll').innerText = rollNo;
+
+            const res = await fetch(API_BASE_URL + `/api/attendance?roll_no=${rollNo}`);
+            const data = await res.json();
+            
+            // Calculate Overall Stats
+            let totalConducted = 0;
+            let totalAttended = 0;
+            Object.values(data).forEach(daySlots => {
+                if (Array.isArray(daySlots)) {
+                    daySlots.forEach(s => {
+                        // Conducted = P, A, L (Late is also present)
+                        if (['P', 'A', 'L'].includes(s)) {
+                            totalConducted++;
+                            if (s === 'P' || s === 'L') totalAttended++;
+                        }
+                    });
+                }
+            });
+            
+            const percentage = totalConducted > 0 ? ((totalAttended / totalConducted) * 100).toFixed(1) : 0;
+            document.getElementById('total-conducted').innerText = totalConducted;
+            document.getElementById('total-attended').innerText = totalAttended;
+            document.getElementById('overall-percentage').innerText = percentage + '%';
+            
+            // Update Circle Progress
+            const circle = document.getElementById('overall-progress-circle');
+            const circumference = 283;
+            const offset = circumference - (percentage / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+
+            const body = document.getElementById('attendance-body');
+            body.innerHTML = '';
+
+            const monthNamesArr = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const monthName = monthNamesArr[monthIndex];
+            const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+            const daysArr = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+            const displayDate = document.getElementById('current-selected-date');
+            displayDate.innerText = `${monthName}-${year}`;
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateKey = `${year}-${(monthIndex + 1).toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
+                const dateObj = new Date(year, monthIndex, d);
+                const dayName = daysArr[dateObj.getDay()];
+                
+                const slots = data[dateKey] || ["", "", "", "", ""]; // Updated to 5 slots
+
+                const tr = document.createElement('tr');
+                if (dateKey === new Date().toISOString().split('T')[0]) {
+                    tr.style.background = "rgba(247, 148, 30, 0.05)";
+                }
+
+                let slotsHtml = '';
+                slots.forEach(s => {
+                    const chipClass = s === 'P' ? 'present-chip' : (s === 'A' ? 'absent-chip' : (s === 'H' ? 'status-h' : (s === 'S' ? 'status-s' : (s === 'L' ? 'status-l' : 'status-r'))));
+                    const displayChar = s || "";
+                    slotsHtml += `<td><span class="${chipClass}">${displayChar}</span></td>`;
+                });
+
+                tr.innerHTML = `
+                    <td><strong>${d.toString().padStart(2, '0')}-${monthName}</strong><br><small>${dayName}</small></td>
+                    ${slotsHtml}
+                `;
+                body.appendChild(tr);
+            }
+        }
+
+        function saveRollAndReload() {
+            const roll = document.getElementById('student-roll-input').value.trim();
+            if (roll) {
+                localStorage.setItem('student_roll', roll);
+                fetchAttendance(selectedDate.getFullYear(), selectedDate.getMonth());
+            } else {
+                alert('Please enter a valid Roll Number');
+            }
+        }
+
+        // Initial fetch
+        fetchAttendance(selectedDate.getFullYear(), selectedDate.getMonth());
+
+        // Picker Logic
+        const modal = document.getElementById('date-picker-modal');
+        const openBtn = document.getElementById('open-calendar-picker');
+        const cancelBtn = document.getElementById('cancel-picker');
+        const doneBtn = document.getElementById('done-picker');
+        const overlay = document.getElementById('modal-overlay');
+
+        const dateCol = document.getElementById('picker-date');
+        const monthCol = document.getElementById('picker-month');
+        const yearCol = document.getElementById('picker-year');
+
+        let tempDate = selectedDate.getDate();
+        let tempMonth = selectedDate.getMonth();
+        let tempYear = selectedDate.getFullYear();
+
+        function populatePicker() {
+            // Populate Dates
+            dateCol.innerHTML = '';
+            for(let i=1; i<=31; i++) {
+                const div = document.createElement('div');
+                div.className = `picker-item ${i === tempDate ? 'active' : ''}`;
+                div.innerText = i.toString().padStart(2, '0');
+                div.onclick = () => {
+                    tempDate = i;
+                    populatePicker();
+                };
+                dateCol.appendChild(div);
+            }
+
+            // Populate Months
+            monthCol.innerHTML = '';
+            monthNames.forEach((m, i) => {
+                const div = document.createElement('div');
+                div.className = `picker-item ${i === tempMonth ? 'active' : ''}`;
+                div.innerText = m;
+                div.onclick = () => {
+                    tempMonth = i;
+                    populatePicker();
+                };
+                monthCol.appendChild(div);
+            });
+
+            // Populate Years
+            yearCol.innerHTML = '';
+            const currentYear = new Date().getFullYear();
+            for(let i=currentYear-2; i<=currentYear+2; i++) {
+                const div = document.createElement('div');
+                div.className = `picker-item ${i === tempYear ? 'active' : ''}`;
+                div.innerText = i;
+                div.onclick = () => {
+                    tempYear = i;
+                    populatePicker();
+                };
+                yearCol.appendChild(div);
+            }
+        }
+         // clear flow issues
+        openBtn.onclick = () => {
+            tempDate = selectedDate.getDate();
+            tempMonth = selectedDate.getMonth();
+            tempYear = selectedDate.getFullYear();
+            populatePicker();
+            modal.classList.add('show');
+        };
+
+        const closeModal = () => modal.classList.remove('show');
+        cancelBtn.onclick = closeModal;
+        overlay.onclick = closeModal;
+
+        doneBtn.onclick = () => {
+            selectedDate = new Date(tempYear, tempMonth, tempDate);
+            fetchAttendance(tempYear, tempMonth);
+            closeModal();
+        };
+
+        // Tabs and other UI logic...
+        const tabs = document.querySelectorAll('.tab');
+        const lectureView = document.getElementById('lecture-wise-view');
+        const subjectView = document.getElementById('subject-wise-view');
+        const indicator = document.querySelector('.indicator');
+
+        tabs.forEach((tab, index) => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                const tabWidth = (tab.parentElement.offsetWidth - 20) / tabs.length;
+                indicator.style.width = `${tabWidth}px`;
+                indicator.style.left = `${10 + index * tabWidth}px`;
+
+                if (tab.dataset.tab === 'lecture') {
+                    lectureView.style.display = 'block';
+                    subjectView.style.display = 'none';
+                    fetchAttendance(selectedDate.getFullYear(), selectedDate.getMonth());
+                } else {
+                    lectureView.style.display = 'none';
+                    subjectView.style.display = 'block';
+                }
+            });
+        });
+
+        // Initialize indicator position
+        const initIndicator = () => {
+            const activeTab = document.querySelector('.tab.active');
+            if(activeTab) {
+                const tabWidth = (activeTab.parentElement.offsetWidth - 20) / tabs.length;
+                indicator.style.width = `${tabWidth}px`;
+                indicator.style.left = `${10 + Array.from(tabs).indexOf(activeTab) * tabWidth}px`;
+            }
+        };
+        initIndicator();
+        window.addEventListener('resize', initIndicator);
+    </script>
+    <!-- Scroll to Top Button -->
+    <button id="globalScrollToTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Go to top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+    <script>
+        window.addEventListener('scroll', () => {
+            const btn = document.getElementById('globalScrollToTopBtn');
+            if (btn) {
+                if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                    btn.style.display = 'flex';
+                } else {
+                    btn.style.display = 'none';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Fee Receipt - SLTIET</title>
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#22245b">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #22245b, #2d2a5a);
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(34, 36, 91, 0.3);
+    }
+
+    .header i {
+      margin-right: 15px;
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+
+    .header h3 {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    /* Notification Banner */
+    .notif-banner {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      animation: slideDown 0.4s ease;
+    }
+
+    .notif-banner i {
+      font-size: 1.1rem;
+    }
+
+    .notif-dismiss {
+      margin-left: auto;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      border-radius: 8px;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Container */
+    .container {
+      padding: 20px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Semester Selector */
+    .sem-picker-card {
+      background: white;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 8px 24px -5px rgba(34, 36, 91, 0.12);
+      border: 1px solid rgba(0, 0, 0, 0.04);
+      margin-bottom: 24px;
+    }
+
+    .sem-picker-card h4 {
+      color: #22245b;
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sem-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .sem-chip {
+      background: #f1f5f9;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      padding: 12px 6px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 0.88rem;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .sem-chip:hover {
+      background: #e0e7ff;
+      color: #3730a3;
+      border-color: #a5b4fc;
+    }
+
+    .sem-chip.active {
+      background: linear-gradient(135deg, #22245b, #3730a3);
+      color: white;
+      border-color: #22245b;
+      box-shadow: 0 4px 12px rgba(34, 36, 91, 0.35);
+      transform: scale(1.03);
+    }
+
+    /* Section Title */
+    .section-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin: 20px 0 10px;
+    }
+
+    /* Receipt Card */
+    .receipt {
+      background: white;
+      border-radius: 16px;
+      margin-bottom: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .receipt:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px -5px rgba(0, 0, 0, 0.12);
+    }
+
+    .top-bar {
+      display: flex;
+    }
+
+    .sem-bar {
+      background: #22245b;
+      color: white;
+      padding: 14px 16px;
+      flex: 1;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .amount-bar {
+      background: #caa24d;
+      color: white;
+      padding: 14px 16px;
+      flex: 1.2;
+      text-align: right;
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+
+    .faculty-bar {
+      background: linear-gradient(135deg, #22245b, #3730a3);
+      color: white;
+      padding: 14px 16px;
+      flex: 1;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .new-tag {
+      background: #22c55e;
+      color: white;
+      font-size: 0.65rem;
+      padding: 2px 7px;
+      border-radius: 20px;
+      font-weight: 700;
+    }
+
+    .content {
+      padding: 20px 24px;
+      font-size: 0.88rem;
+      color: #444;
+      line-height: 1.7;
+    }
+
+    .content b {
+      color: #22245b;
+    }
+
+    .btn-container {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 14px;
+      gap: 10px;
+    }
+
+    .btn {
+      background: #22245b;
+      color: white;
+      padding: 9px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+      border: none;
+      font-size: 0.85rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+
+    .btn-view {
+      background: rgba(34, 36, 91, 0.08);
+      color: #22245b;
+    }
+
+    /* Empty / Pending State */
+    .empty-state,
+    .pending-state {
+      text-align: center;
+      padding: 40px 20px;
+      border-radius: 16px;
+      background: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .empty-state i {
+      font-size: 2.8rem;
+      color: #cbd5e1;
+      margin-bottom: 12px;
+    }
+
+    .empty-state p {
+      color: #94a3b8;
+      font-size: 0.95rem;
+    }
+
+    .pending-state i {
+      font-size: 2.8rem;
+      color: #f59e0b;
+      margin-bottom: 12px;
+    }
+
+    .pending-state h4 {
+      color: #22245b;
+      font-size: 1rem;
+      margin-bottom: 6px;
+    }
+
+    .pending-state p {
+      color: #64748b;
+      font-size: 0.88rem;
+    }
+
+    .notify-btn {
+      margin-top: 16px;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 24px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35);
+      transition: all 0.2s;
+    }
+
+    .notify-btn:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    .notify-btn:disabled {
+      background: #e2e8f0;
+      color: #94a3b8;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 30px;
+      color: #94a3b8;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .fa-spin {
+      animation: spin 1s linear infinite;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 12px;
+      }
+
+      .sem-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 7px;
+      }
+
+      .sem-chip {
+        padding: 10px 4px;
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+
+    <script src="config.js"></script>
+</head>
+
+<body>
+
+  <div class="header">
+    <i class="fa-solid fa-arrow-left" onclick="window.location.href='fees.html'"></i>
+    <h3>Fee Receipt</h3>
+  </div>
+
+  <!-- Notification Banner -->
+  <div id="notifBanner" class="notif-banner" style="display:none;">
+    <i class="fa-solid fa-bell"></i>
+    <span id="notifText">New fee receipts have been uploaded by faculty!</span>
+    <button class="notif-dismiss" onclick="dismissNotif()">Got it</button>
+  </div>
+
+  <div class="container">
+
+    <!-- STEP 1: Semester Selector -->
+    <div class="sem-picker-card">
+      <h4><i class="fa-solid fa-graduation-cap"></i> Select Branch</h4>
+      <div class="form-group" style="margin-bottom: 20px;">
+        <select id="studentBranch" class="form-control" onchange="handleBranchChange()" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 12px; font-family: inherit; font-size: 1rem; font-weight: 600; color: #475569;">
+          <option value="CIVIL">CIVIL</option>
+          <option value="CSE" selected>CSE</option>
+          <option value="ME">ME</option>
+          <option value="EC">EC</option>
+          <option value="BCA">BCA</option>
+        </select>
+      </div>
+      <h4><i class="fa-solid fa-calendar-check"></i> Select Semester to View Receipts</h4>
+      <div class="sem-grid" id="semGrid">
+        <div class="sem-chip" onclick="selectSem('sem1', this)">Sem 1</div>
+        <div class="sem-chip" onclick="selectSem('sem2', this)">Sem 2</div>
+        <div class="sem-chip" onclick="selectSem('sem3', this)">Sem 3</div>
+        <div class="sem-chip" onclick="selectSem('sem4', this)">Sem 4</div>
+        <div class="sem-chip" onclick="selectSem('sem5', this)">Sem 5</div>
+        <div class="sem-chip" onclick="selectSem('sem6', this)">Sem 6</div>
+        <div class="sem-chip" onclick="selectSem('sem7', this)">Sem 7</div>
+        <div class="sem-chip" onclick="selectSem('sem8', this)">Sem 8</div>
+      </div>
+    </div>
+
+    <!-- STEP 2: Receipts for selected semester -->
+    <div id="receiptsArea" style="display:none;">
+      <div class="section-title" id="receiptsTitle"></div>
+      <div id="receiptsContainer">
+        <div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Session Check
+    const sRoll = localStorage.getItem('studentRoll') || 'Student';
+    if (!sRoll) window.location.href = 'login.html';
+
+    const SEEN_KEY = 'fee_receipts_seen_count';
+    let activeSem = null;
+
+    // ─── Check for new receipts on load (for banner) ──────────────────────────
+    (async () => {
+      try {
+        const res = await fetch(API_BASE_URL + '/api/fee_receipts');
+        const all = await res.json();
+        const seenCount = parseInt(localStorage.getItem(SEEN_KEY) || '0');
+        if (all.length > seenCount) {
+          const n = all.length - seenCount;
+          document.getElementById('notifText').innerText =
+            `${n} new fee receipt${n > 1 ? 's have' : ' has'} been uploaded by faculty!`;
+          document.getElementById('notifBanner').style.display = 'flex';
+        }
+      } catch (e) { }
+    })();
+
+    function dismissNotif() {
+      document.getElementById('notifBanner').style.display = 'none';
+    }
+
+    function handleBranchChange() {
+      if (activeSem) {
+        loadReceiptsForSem(activeSem);
+      }
+    }
+
+    // ─── Select semester chip ─────────────────────────────────────────────────
+    function selectSem(sem, el) {
+      document.querySelectorAll('.sem-chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      activeSem = sem;
+      loadReceiptsForSem(sem);
+    }
+
+    // ─── Load receipts for selected semester ─────────────────────────────────
+    async function loadReceiptsForSem(sem) {
+      const area = document.getElementById('receiptsArea');
+      const container = document.getElementById('receiptsContainer');
+      const title = document.getElementById('receiptsTitle');
+
+      area.style.display = 'block';
+      container.innerHTML = '<div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</div>';
+      const semLabel = sem.replace('sem', 'Semester ');
+      title.innerHTML = `<i class="fa-solid fa-file-invoice-dollar" style="margin-right:5px;color:#caa24d;"></i> ${semLabel} — Faculty Uploaded Receipts`;
+
+      const branch = document.getElementById('studentBranch').value;
+      try {
+        const res = await fetch(API_BASE_URL + `/api/fee_receipts_by_semester?semester=${sem}&branch=${branch}`);
+        const receipts = await res.json();
+
+        if (!receipts || receipts.length === 0) {
+          // No receipts yet — show pending state with notify button
+          const seenRequestKey = `receipt_req_sent_${sem}`;
+          const alreadySent = localStorage.getItem(seenRequestKey) === '1';
+          container.innerHTML = `
+          <div class="pending-state">
+            <i class="fa-solid fa-hourglass-half"></i>
+            <h4>No receipt uploaded yet for ${semLabel}</h4>
+            <p>Faculty has not uploaded a fee receipt for this semester yet.<br>
+               Click below to notify faculty to upload your receipt.</p>
+            <button class="notify-btn" id="notifyBtn" onclick="notifyFaculty('${sem}')" ${alreadySent ? 'disabled' : ''}>
+              <i class="fa-solid fa-bell"></i> ${alreadySent ? 'Notification Sent ✓' : 'Notify Faculty to Upload'}
+            </button>
+          </div>`;
+          return;
+        }
+
+        // Update seen count
+        const seenCount = parseInt(localStorage.getItem(SEEN_KEY) || '0');
+        const totalAll = (await (await fetch(API_BASE_URL + '/api/fee_receipts')).json()).length;
+        localStorage.setItem(SEEN_KEY, totalAll.toString());
+
+        container.innerHTML = receipts.map((r, i) => {
+          const isNew = i >= seenCount;
+          return `
+          <div class="receipt">
+            <div class="top-bar">
+              <div class="faculty-bar">
+                <i class="fa-solid fa-file-pdf" style="color:#fca5a5;"></i>
+                ${semLabel}
+                ${isNew ? '<span class="new-tag">NEW</span>' : ''}
+              </div>
+            </div>
+            <div class="content">
+              <b>${r.label}</b><br>
+              Uploaded by: <b>Faculty</b><br>
+              Date: <b>${r.uploaded_at}</b>
+              <div class="btn-container">
+                <a href="${r.path}" target="_blank" class="btn btn-view">
+                  <i class="fa-solid fa-eye"></i> View
+                </a>
+                <a href="${r.path}" download class="btn" onclick="recordDownload('${sem}')">
+                  <i class="fa-solid fa-download"></i> Download
+                </a>
+              </div>
+            </div>
+          </div>`;
+        }).join('');
+
+      } catch (e) {
+        container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>Could not load receipts. Please try again.</p></div>';
+      }
+    }
+
+    // ─── Notify faculty that student needs their receipt for a semester ────────
+    async function notifyFaculty(sem) {
+      const btn = document.getElementById('notifyBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
+      const branch = document.getElementById('studentBranch').value;
+      try {
+        await fetch(API_BASE_URL + '/api/notify_receipt_request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ semester: sem, roll: sRoll, branch: branch })
+        });
+        localStorage.setItem(`receipt_req_sent_${sem}`, '1');
+        btn.innerHTML = '<i class="fa-solid fa-check-circle"></i> Notification Sent ✓';
+        // Show success toast
+        showToast('Faculty has been notified to upload your receipt!', '#22c55e');
+      } catch (e) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-bell"></i> Notify Faculty to Upload';
+      }
+    }
+
+    // ─── Record download (optional analytics ping) ────────────────────────────
+    function recordDownload(sem) {
+      const branch = document.getElementById('studentBranch').value;
+      fetch(API_BASE_URL + '/api/notify_receipt_request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ semester: sem, roll: sRoll, branch: branch, action: 'download' })
+      }).catch(() => { });
+    }
+
+    // ─── Toast helper ─────────────────────────────────────────────────────────
+    function showToast(msg, color) {
+      const t = document.createElement('div');
+      t.style.cssText = `position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:${color};color:white;padding:14px 24px;border-radius:14px;font-weight:600;font-size:0.92rem;box-shadow:0 8px 24px rgba(0,0,0,0.2);z-index:9999;display:flex;align-items:center;gap:8px;`;
+      t.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${msg}`;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 3500);
+    }
+  </script>
+</body>
+
+</html>

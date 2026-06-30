@@ -1,0 +1,11 @@
+{
+  "appId": "com.sltiet.ums",
+  "appName": "SLTIET Attendance",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "http",
+    "cleartext": true,
+    "allowMixedContent": true
+  }
+}
+

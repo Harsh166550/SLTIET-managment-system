@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Student Portal - SLTIET UMS</title>
+    <link rel="icon" type="image/jpeg" href="static/images/logo.jpg">
+    <link rel="stylesheet" href="static/student_style.css">
+    <script src="static/script.js"></script>
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#22245b">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <script src="config.js"></script>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="app-header">
+            <div class="header-title">
+                <h2 id="studentNameDisplay">Hello, Student</h2>
+                <p>Student Portal <span id="studentRollDisplay"
+                        style="font-size: 0.8rem; color: #cbd5e1; margin-left: 5px;"></span></p>
+            </div>
+            <div class="header-actions">
+                <div class="icon-btn" onclick="openNotifications()" style="position: relative;">
+                    <i class="fa-solid fa-bell"></i>
+                    <span id="notifBadge"
+                        style="display: none; position: absolute; top: -5px; right: -5px; width: 10px; height: 10px; background: #ef4444; border-radius: 50%; border: 2px solid white;"></span>
+                </div>
+                <div class="icon-btn" onclick="window.location.href='profile.html'">
+                    <i class="fa-solid fa-user-gear"></i>
+                </div>
+                <div class="icon-btn logout" onclick="handleLogout()">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function handleLogout() {
+                localStorage.clear();
+                window.location.href = 'login.html';
+            }
+        </script>
+
+        <div class="grid">
+
+            <!-- Row 1 -->
+            <div class="card" onclick="window.location.href='attendance.html'">
+                <i class="fa-solid fa-user-check icon"></i>
+                <p>Attendance</p>
+            </div>
+
+            <div class="card" onclick="window.location.href='mid_exam.html'">
+                <i class="fa-solid fa-file-pen icon"></i>
+                <p>Mid-Exam</p>
+            </div>
+
+            <!-- Row 2 -->
+            <div class="card" onclick="window.location.href='fees.html'">
+                <i class="fa-solid fa-wallet icon"></i>
+                <p>Fee Details</p>
+            </div>
+
+            <div class="card" onclick="window.location.href='leave_application.html'">
+                <i class="fa-regular fa-address-card icon"></i>
+                <p>Leave Application</p>
+            </div>
+
+            <div class="card" onclick="openAcademicDoc('calendar')">
+                <i class="fa-duotone fa-regular fa-calendar-days icon"></i>
+                <p>Academic Calendar</p>
+            </div>
+
+            <div class="card" onclick="openAcademicDoc('timetable')">
+                <i class="fa-solid fa-calendar-check icon"></i>
+                <p>Time Table</p>
+            </div>
+
+            <div class="card" onclick="openAcademicDoc('syllabus')">
+                <i class="fa-solid fa-book icon"></i>
+                <p>Syllabus</p>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Notifications Modal -->
+    <div id="notifModal" class="modal">
+        <div class="modal-content" style="position:relative;">
+            <div class="modal-header">
+                <h3>Notifications</h3>
+                <button class="close-modal" onclick="closeNotifModal()">&times;</button>
+            </div>
+            <div id="notifList" style="max-height: 400px; overflow-y: auto; padding: 10px 0; padding-right:5px;">
+                <!-- Notifications will be listed here -->
+            </div>
+            <button id="studentNotifScrollTopBtn" onclick="document.getElementById('notifList').scrollTo({top:0, behavior:'smooth'})" 
+                style="display:none; position:absolute; bottom:30px; right:30px; background:var(--primary); color:white; border:none; border-radius:50%; width:36px; height:36px; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.2); justify-content:center; align-items:center; z-index:99;">
+                <i class="fa-solid fa-arrow-up"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Semester Selection Modal (Student) -->
+    <div id="semModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="studentModalTitle">Select Branch & Semester</h3>
+                <button class="close-modal" onclick="closeSemModal()">&times;</button>
+            </div>
+            <div class="form-group" style="margin-bottom: 12px;">
+                <label>Select Branch</label>
+                <select id="studentBranch" class="form-control">
+                    <option value="CIVIL">CIVIL</option>
+                    <option value="CSE" selected>CSE</option>
+                    <option value="ME">ME</option>
+                    <option value="EC">EC</option>
+                    <option value="BCA">BCA</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Select Semester</label>
+                <select id="studentSem" class="form-control">
+                    <option value="sem1">Semester 1</option>
+                    <option value="sem2">Semester 2</option>
+                    <option value="sem3">Semester 3</option>
+                    <option value="sem4">Semester 4</option>
+                    <option value="sem5">Semester 5</option>
+                    <option value="sem6">Semester 6</option>
+                    <option value="sem7">Semester 7</option>
+                    <option value="sem8">Semester 8</option>
+                </select>
+            </div>
+            <button class="btn-premium" onclick="viewAcademicDoc()">
+                <i class="fa-solid fa-eye"></i> View Document
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const semModal = document.getElementById('semModal');
+        let currentDocType = null;
+        async function openAcademicDoc(type) {
+            currentDocType = type;
+            const titleMap = {
+                'calendar': 'Select Branch & Semester for Calendar',
+                'timetable': 'Select Branch & Semester for Time Table',
+                'syllabus': 'Select Branch & Semester for Syllabus'
+            };
+            document.getElementById('studentModalTitle').innerText = titleMap[type] || 'Select Branch & Semester';
+            semModal.style.display = 'block';
+        }
+
+        function closeSemModal() {
+            semModal.style.display = 'none';
+        }
+
+        async function viewAcademicDoc() {
+            const branch = document.getElementById('studentBranch').value;
+            const sem = document.getElementById('studentSem').value;
+            try {
+                const response = await fetch(API_BASE_URL + '/api/academic_data');
+                const data = await response.json();
+
+                let path = null;
+                const catData = data[currentDocType];
+                if (catData) {
+                    if (typeof catData === 'object') {
+                        if (catData[branch] && catData[branch][sem]) {
+                            path = catData[branch][sem];
+                        } else if (catData[sem]) {
+                            // Fallback
+                            path = catData[sem];
+                        }
+                    } else if (typeof catData === 'string') {
+                        path = catData;
+                    }
+                }
+
+                if (path) {
+                    window.open(path, '_blank');
+                    closeSemModal();
+                } else {
+                    alert(`${currentDocType.charAt(0).toUpperCase() + currentDocType.slice(1)} for ${branch} ${sem.replace('sem', 'Semester ')} is not yet uploaded`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to load document');
+            }
+        }
+
+        async function openNotifications() {
+            const modal = document.getElementById('notifModal');
+            const list  = document.getElementById('notifList');
+            const badge = document.getElementById('notifBadge');
+
+            const roll = localStorage.getItem('studentRoll');
+            if (!roll) return;
+
+            list.innerHTML = '<div style="text-align:center;padding:20px;"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</div>';
+            modal.style.display = 'block';
+
+            try {
+                const res = await fetch(API_BASE_URL + `/api/notifications?user_id=${encodeURIComponent(roll)}`);
+                const notifications = await res.json();
+
+                if (notifications.length === 0) {
+                    list.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 20px;">No new notifications</p>';
+                } else {
+                    // Sort descending by ID
+                    notifications.sort((a, b) => b.id - a.id);
+                    list.innerHTML = notifications.map(n => `
+                        <div style="padding: 15px; border-bottom: 1px solid #f1f5f9;
+                            background: ${n.read ? 'white' : 'rgba(247, 148, 30, 0.05)'};
+                            border-radius: 12px; margin-bottom: 8px;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px;">
+                                <span style="font-weight: 700; color: var(--primary); font-size: 0.95rem;">
+                                    ${n.title}
+                                </span>
+                                <small style="color: var(--text-muted); font-size: 0.75rem;">${n.created_at || ''}</small>
+                            </div>
+                            <p style="font-size: 0.85rem; color: var(--text-main); margin: 0;">${n.message}</p>
+                        </div>
+                    `).join('');
+
+                    // Mark all notifications as read on server
+                    await fetch(API_BASE_URL + '/api/notifications/read', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user_id: roll })
+                    });
+                    
+                    badge.style.display = 'none';
+                }
+            } catch (e) {
+                console.error('Failed to open notifications:', e);
+                list.innerHTML = '<p style="text-align: center; color: red; padding: 20px;">Failed to load notifications</p>';
+            }
+
+            // Setup Scroll Button Visibility logic
+            const scrollBtn = document.getElementById('studentNotifScrollTopBtn');
+            if (scrollBtn) {
+                list.onscroll = () => {
+                    if (list.scrollTop > 60) {
+                        scrollBtn.style.display = 'flex';
+                    } else {
+                        scrollBtn.style.display = 'none';
+                    }
+                };
+            }
+        }
+
+        function closeNotifModal() {
+            document.getElementById('notifModal').style.display = 'none';
+        }
+
+        async function checkNewNotifications() {
+            const roll = localStorage.getItem('studentRoll');
+            if (!roll) return;
+
+            try {
+                const res = await fetch(API_BASE_URL + `/api/notifications?user_id=${encodeURIComponent(roll)}`);
+                const notifications = await res.json();
+
+                const unreadCount = notifications.filter(n => !n.read).length;
+                const badge = document.getElementById('notifBadge');
+                if (unreadCount > 0) {
+                    badge.style.display = 'block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            } catch (e) {
+                console.error('Notification poll failed:', e);
+            }
+        }
+
+        // ── Initialize student name/roll display ─────────────────────────
+        const sName = localStorage.getItem('studentName');
+        const sRoll = localStorage.getItem('studentRoll');
+        if (!sRoll) {
+            window.location.href = 'login.html';
+        } else {
+            document.getElementById('studentNameDisplay').textContent = 'Hello, ' + (sName || 'Student');
+            document.getElementById('studentRollDisplay').textContent = '(' + sRoll + ')';
+        }
+
+        checkNewNotifications();
+        setInterval(checkNewNotifications, 8000);
+
+        // Listen for changes to localStorage (e.g., name update from profile)
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'studentName') {
+                document.getElementById('studentNameDisplay').textContent = 'Hello, ' + (event.newValue || 'Student');
+            }
+        });
+
+        window.onclick = (event) => {
+            if (event.target == semModal) closeSemModal();
+            if (event.target == document.getElementById('notifModal')) closeNotifModal();
+        };
+    </script>
+
+    <!-- Scroll to Top Button -->
+    <button id="globalScrollToTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Go to top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+    <script>
+        window.addEventListener('scroll', () => {
+            const btn = document.getElementById('globalScrollToTopBtn');
+            if (btn) {
+                if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                    btn.style.display = 'flex';
+                } else {
+                    btn.style.display = 'none';
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
