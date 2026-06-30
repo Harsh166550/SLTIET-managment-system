@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">SLTIET Attendance</string>
+    <string name="title_activity_main">SLTIET Attendance</string>
+    <string name="package_name">com.sltiet.ums</string>
+    <string name="custom_url_scheme">com.sltiet.ums</string>
+</resources>
