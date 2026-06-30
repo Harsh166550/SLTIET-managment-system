@@ -1,0 +1,15 @@
+[
+    {
+        "id": 1782629412197,
+        "user_id": "principal@sltiet.edu.in",
+        "title": "New Leave Request",
+        "message": "Roll: 250893131025 applied for Sick Leave (2026-06-16 to 2026-06-18). Reason: i am seak",
+        "student_name": "MEVADA HARSH VIJAYBHAI",
+        "faculty_name": "Principal",
+        "subject": "General",
+        "status": "Pending",
+        "type": "leave_request",
+        "read": true,
+        "created_at": "28/06/2026 12:20"
+    }
+]
