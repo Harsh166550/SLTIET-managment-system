@@ -9,7 +9,45 @@ import time
 import pandas as pd
 from datetime import datetime
 import io
-import pywhatkit
+import requests
+import traceback
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
+
+def send_whatsapp_message(phone_number, message):
+    """Send a WhatsApp text message using Meta WhatsApp Cloud API."""
+    access_token = os.environ.get("WHATSAPP_ACCESS_TOKEN")
+    phone_number_id = os.environ.get("PHONE_NUMBER_ID")
+
+    if not access_token or not phone_number_id:
+        raise RuntimeError("WHATSAPP_ACCESS_TOKEN and PHONE_NUMBER_ID environment variables are required")
+
+    normalized_number = str(phone_number).strip().replace(" ", "").replace("-", "").lstrip("+")
+    print(f"[WhatsApp] Sending message to parentNumber={phone_number!r} normalized={normalized_number!r}")
+
+    url = f"https://graph.facebook.com/v23.0/{phone_number_id}/messages"
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "messaging_product": "whatsapp",
+        "to": normalized_number,
+        "type": "text",
+        "text": {"body": message},
+    }
+
+    response = requests.post(url, headers=headers, json=payload, timeout=20)
+    try:
+        response.raise_for_status()
+    except requests.HTTPError as exc:
+        error_body = response.text.strip() or "<empty response body>"
+        raise RuntimeError(f"Meta WhatsApp API request failed (status {response.status_code}): {error_body}") from exc
+
+    return response.json()
 
 """
 B.E Section (079) 23267546 
@@ -1012,6 +1050,8 @@ def submit_leave():
     if not (name and from_d and to_d and ltype and reason and parent):
         return jsonify({'status': 'error', 'message': 'All fields are required'}), 400
 
+    print(f"[Leave] submit_leave received name={name!r} roll={roll!r} parentNumber={parent!r}")
+
     leaves = load_leaves()
     leave_id = int(datetime.now().timestamp() * 1000)   # ms timestamp
     new_leave = {
@@ -1064,15 +1104,13 @@ Reason:
 
 SLTIET
 """
-        pywhatkit.sendwhatmsg_instantly(
-            f"+{parent}",
-            message,
-            wait_time=20,
-            tab_close=True
-        )
+        send_whatsapp_message(parent, message)
     except Exception as wa_err:
         # WhatsApp failure should NOT break the leave submission
-        print(f"[WhatsApp] Could not send message: {wa_err}")
+        print(f"[WhatsApp] Could not send message for parentNumber={parent!r}")
+        print(f"[WhatsApp] Error type: {type(wa_err).__name__}")
+        print(f"[WhatsApp] Error details: {wa_err}")
+        print(f"[WhatsApp] Traceback:\n{traceback.format_exc()}")
 
     return jsonify({'status': 'success', 'id': leave_id})
 
