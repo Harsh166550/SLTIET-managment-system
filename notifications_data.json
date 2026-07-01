@@ -1,0 +1,41 @@
+[
+    {
+        "id": 1782888024232,
+        "user_id": "principal@sltiet.edu.in",
+        "title": "New Leave Request",
+        "message": "Roll: 250893131025 applied for Sick Leave (2026-07-03 to 2026-07-07). Reason: sdfghj sdfghj",
+        "student_name": "MEVADA HARSH VIJAYBHAI",
+        "faculty_name": "Principal",
+        "subject": "General",
+        "status": "Pending",
+        "type": "leave_request",
+        "read": false,
+        "created_at": "01/07/2026 12:10"
+    },
+    {
+        "id": 1782888220464,
+        "user_id": "science@sltiet.edu.in",
+        "title": "New Leave Request",
+        "message": "Roll: 250893131025 applied for Sick Leave (2026-07-08 to 2026-07-08). Reason: jfhaxasfi asoffriajsif",
+        "student_name": "MEVADA HARSH VIJAYBHAI",
+        "faculty_name": "Science",
+        "subject": "General",
+        "status": "Pending",
+        "type": "leave_request",
+        "read": false,
+        "created_at": "01/07/2026 12:13"
+    },
+    {
+        "id": 1782888964010,
+        "user_id": "computer@sltiet.edu.in",
+        "title": "New Leave Request",
+        "message": "Roll: 250893131025 applied for Personal Leave (2026-07-23 to 2026-07-16). Reason: bsahdbjdsb",
+        "student_name": "MEVADA HARSH VIJAYBHAI",
+        "faculty_name": "Dr. Priya Sharma",
+        "subject": "General",
+        "status": "Pending",
+        "type": "leave_request",
+        "read": false,
+        "created_at": "01/07/2026 12:26"
+    }
+]

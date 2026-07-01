@@ -40,7 +40,8 @@ android/local.properties
 
 # Runtime logs and local data
 *.log
-PyWhatKit_DB.txt
+.env
+.env.*
 
 # Editor / OS files
 .vscode/

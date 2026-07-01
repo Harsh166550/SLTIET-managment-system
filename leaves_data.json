@@ -1,1 +1,47 @@
-[]
+[
+    {
+        "id": 1782888024230,
+        "name": "MEVADA HARSH VIJAYBHAI",
+        "roll": "250893131025",
+        "from": "2026-07-03",
+        "to": "2026-07-07",
+        "type": "Sick Leave",
+        "reason": "sdfghj sdfghj",
+        "parentNumber": "9033913432",
+        "semester": "sem1",
+        "targetFaculty": "principal@sltiet.edu.in",
+        "status": "Pending",
+        "appliedAt": "01/07/2026 12:10",
+        "notified": false
+    },
+    {
+        "id": 1782888220461,
+        "name": "MEVADA HARSH VIJAYBHAI",
+        "roll": "250893131025",
+        "from": "2026-07-08",
+        "to": "2026-07-08",
+        "type": "Sick Leave",
+        "reason": "jfhaxasfi asoffriajsif",
+        "parentNumber": "8460008111",
+        "semester": "sem2",
+        "targetFaculty": "science@sltiet.edu.in",
+        "status": "Pending",
+        "appliedAt": "01/07/2026 12:13",
+        "notified": false
+    },
+    {
+        "id": 1782888964004,
+        "name": "MEVADA HARSH VIJAYBHAI",
+        "roll": "250893131025",
+        "from": "2026-07-23",
+        "to": "2026-07-16",
+        "type": "Personal Leave",
+        "reason": "bsahdbjdsb",
+        "parentNumber": "7874936148",
+        "semester": "sem2",
+        "targetFaculty": "computer@sltiet.edu.in",
+        "status": "Pending",
+        "appliedAt": "01/07/2026 12:26",
+        "notified": false
+    }
+]
