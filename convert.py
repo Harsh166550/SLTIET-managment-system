@@ -21,7 +21,7 @@ def convert_app():
     # The user can easily update this in www/config.js later.
     with open(os.path.join(output_dir, "config.js"), "w") as f:
         f.write("// Capacitor Frontend Configuration\n")
-        f.write("const API_BASE_URL = 'http://192.168.1.70:5000';\n")
+        f.write("const API_BASE_URL = 'http://51.20.250.141:5000';\n")
 
     # 4. Map server endpoints to relative file names for mobile navigation
     route_mappings = {

@@ -21,7 +21,7 @@
 
   // Native Android (Capacitor) emulator fallback IP
   if (isNative) {
-    window.API_BASE_URL = `http://192.168.1.70:${port}`;
+    window.API_BASE_URL = 'http://51.20.250.141:5000';
     return;
   }
 
