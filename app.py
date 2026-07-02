@@ -11,10 +11,36 @@ from datetime import datetime
 import io
 import requests
 import traceback
+import tempfile
 from dotenv import load_dotenv
 
 
 load_dotenv()
+
+
+def safe_save_json(filepath, data):
+    """Save data to JSON file atomically to prevent concurrent read/write issues in Gunicorn."""
+    dir_name = os.path.dirname(filepath)
+    if dir_name and not os.path.exists(dir_name):
+        os.makedirs(dir_name, exist_ok=True)
+    
+    fd, temp_path = tempfile.mkstemp(dir=dir_name or '.', prefix=".tmp_")
+    try:
+        with os.fdopen(fd, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=4)
+            f.flush()
+            try:
+                os.fsync(f.fileno())
+            except OSError:
+                pass
+        os.replace(temp_path, filepath)
+    except Exception as e:
+        if os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except Exception:
+                pass
+        raise e
 
 
 def send_whatsapp_message(phone_number, message):
@@ -124,8 +150,7 @@ def load_data():
     return {}
 
 def save_data(data):
-    with open(ATTENDANCE_FILE, 'w') as f:
-        json.dump(data, f, indent=4)
+    safe_save_json(ATTENDANCE_FILE, data)
 
 def load_marks():
     if os.path.exists(MARKS_FILE):
@@ -137,8 +162,7 @@ def load_marks():
     return {}
 
 def save_marks(data):
-    with open(MARKS_FILE, 'w') as f:
-        json.dump(data, f, indent=4)
+    safe_save_json(MARKS_FILE, data)
 
 def load_notifications():
     if os.path.exists(NOTIFICATIONS_FILE):
@@ -150,8 +174,7 @@ def load_notifications():
     return []
 
 def save_notifications(data):
-    with open(NOTIFICATIONS_FILE, 'w') as f:
-        json.dump(data, f, indent=4)
+    safe_save_json(NOTIFICATIONS_FILE, data)
 
 def add_notification(user_id, title, message, student_name='', faculty_name='', subject='', status='', notif_type=''):
     notifs = load_notifications()
@@ -191,8 +214,7 @@ def load_students():
                     data = json.load(f)
                 # Try to write it next to the EXE for persistence / editing
                 try:
-                    with open(STUDENTS_FILE, 'w') as f:
-                        json.dump(data, f, indent=4)
+                    safe_save_json(STUDENTS_FILE, data)
                 except Exception:
                     pass
                 return data
@@ -220,8 +242,7 @@ def load_teachers():
                     data = json.load(f)
                 # Try to write it next to the EXE
                 try:
-                    with open(TEACHERS_FILE, 'w') as f:
-                        json.dump(data, f, indent=4)
+                    safe_save_json(TEACHERS_FILE, data)
                 except Exception:
                     pass
                 return data
@@ -237,19 +258,16 @@ def load_teachers():
         {"email": "electrical@sltiet.edu.in", "password": "admin@123"}
     ]
     try:
-        with open(TEACHERS_FILE, 'w') as f:
-            json.dump(default_teachers, f, indent=4)
+        safe_save_json(TEACHERS_FILE, default_teachers)
     except Exception:
         pass
     return default_teachers
 
 def save_teachers(data):
-    with open(TEACHERS_FILE, 'w') as f:
-        json.dump(data, f, indent=4)
+    safe_save_json(TEACHERS_FILE, data)
 
 def save_students(data):
-    with open(STUDENTS_FILE, 'w') as f:
-        json.dump(data, f, indent=4)
+    safe_save_json(STUDENTS_FILE, data)
 
 def load_academic_data():
     if os.path.exists(ACADEMIC_FILE):
@@ -258,8 +276,7 @@ def load_academic_data():
     return {"timetable": {}, "calendar": None, "syllabus": None}
 
 def save_academic_data(data):
-    with open(ACADEMIC_FILE, 'w') as f:
-        json.dump(data, f, indent=4)
+    safe_save_json(ACADEMIC_FILE, data)
 
 @app.route('/')
 def index():
@@ -845,8 +862,7 @@ def load_fee_receipts():
     return []
 
 def save_fee_receipts(data):
-    with open(FEE_RECEIPTS_FILE, 'w') as f:
-        json.dump(data, f, indent=4)
+    safe_save_json(FEE_RECEIPTS_FILE, data)
 
 @app.route('/api/upload_fee_receipt', methods=['POST'])
 def upload_fee_receipt():
@@ -936,8 +952,7 @@ def load_receipt_requests():
     return []
 
 def save_receipt_requests(data):
-    with open(RECEIPT_REQUESTS_FILE, 'w') as f:
-        json.dump(data, f, indent=4)
+    safe_save_json(RECEIPT_REQUESTS_FILE, data)
 
 @app.route('/api/fee_receipts_by_semester', methods=['GET'])
 def get_fee_receipts_by_semester():
@@ -1029,8 +1044,7 @@ def load_leaves():
     return []
 
 def save_leaves(data):
-    with open(LEAVES_FILE, 'w') as f:
-        json.dump(data, f, indent=4)
+    safe_save_json(LEAVES_FILE, data)
 
 
 @app.route('/api/submit_leave', methods=['POST'])
@@ -1380,6 +1394,14 @@ def proxy_login():
 
     return jsonify({'status': 'error', 'message': 'Invalid credentials'}), 401
 
+
+@app.after_request
+def add_header(response):
+    if request.path.startswith('/api/'):
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+    return response
 
 def open_browser():
     time.sleep(1.5)

@@ -121,7 +121,7 @@
     container.innerHTML = '<span style="font-size:0.85rem;color:#64748b;"><i class="fa-solid fa-spinner fa-spin"></i> Loading subjects...</span>';
 
     try {
-      const res = await fetch(API_BASE_URL + API_BASE_URL + `/api/get_subjects_by_dept_sem?dept=${encodeURIComponent(branch)}&semester=${encodeURIComponent(sem)}`);
+      const res = await fetch(API_BASE_URL + `/api/get_subjects_by_dept_sem?dept=${encodeURIComponent(branch)}&semester=${encodeURIComponent(sem)}`);
       const subjects = await res.json();
 
       if (subjects.length === 0) {
@@ -161,7 +161,7 @@
 
     const studentClass = (branch && sem) ? `${branch} ${sem}` : '';
 
-    fetch(API_BASE_URL + API_BASE_URL + '/api/update_student', {
+    fetch(API_BASE_URL + '/api/update_student', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
